@@ -63,6 +63,14 @@ where:
 - `Phi_RF` is the simulated RF potential amplitude
 - `psi_RF` is the resulting RF pseudopotential
 
+### Total Potential
+
+The total potential is the sum of the DC potential and pseudopotential components:
+
+```math
+\Psi=\psi_{\mathrm{RF}}+\Phi_{\mathrm{DC}}
+```
+
 ### Visualization
 
 Visualization of the resulting simulation is performed in `visualize_results.py`, in which physical constants are specified and individual simulation contributions are combined.
