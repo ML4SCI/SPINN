@@ -4,7 +4,7 @@ This directory contains Python simulation code for calculating static electrode 
 
 The simulation approach and reference simulation files are based on the method described in:
 
-> Adam Pauli, *Classical Control of an Ion in a Surface Trap*, Diploma Thesis, Faculty for Mathematics, Computer Science and Physics, University of Innsbruck, July 2011. Supervisor: Prof. Dr. Rainer Blatt, Department of Experimental Physics.
+> Adam Pauli, *Classical Control of an Ion in a Surface Trap*, Diploma Thesis, University of Innsbruck, July 2011. Supervisor: Prof. Dr. Rainer Blatt, Department of Experimental Physics.
 
 ## Overview
 
