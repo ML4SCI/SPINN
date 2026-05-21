@@ -47,8 +47,8 @@ config = {
     },
 
     "model": {
-        "width": 256,
-        "depth": 3,
+        "width": 128,
+        "depth": 4,
     },
 
     "training": {
