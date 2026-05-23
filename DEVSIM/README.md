@@ -1,10 +1,17 @@
 # Ion Trap Potential Simulations
 
-This directory contains Python simulation code for calculating static electrode potentials and RF pseudopotentials for a surface-electrode ion trap geometry using DEVSIM.
+This directory contains Python simulation code for calculating static electrode potentials and RF pseudopotentials for ion trap geometries using DEVSIM.
 
 The simulation approach and reference simulation files are based on the method described in:
 
 > Adam Pauli, *Classical Control of an Ion in a Surface Trap*, Master's Thesis, University of Innsbruck, July 2011.
+
+## Layout
+
+- [2D_Geometries/](2D_Geometries/) — 2D cross-section simulations. Each subdirectory is a self-contained pipeline for one electrode shape: [Circular](2D_Geometries/Circular_trap/), [Hyperbolae](2D_Geometries/Hyperbolae_trap/), [Inline](2D_Geometries/Inline_trap/), [Rectangle](2D_Geometries/Rectangle_trap/).
+- [3D_Geometries/](3D_Geometries/) — full 3D simulations for physically realistic trap architectures: [Linear blade](3D_Geometries/Linear_blade_trap/), [Classical 3D Paul](3D_Geometries/Classical_3D_Paul_trap/), [Surface-electrode](3D_Geometries/Surface_electrode_trap/), [Stylus](3D_Geometries/Stylus_trap/). See [3D_Geometries/README.md](3D_Geometries/README.md) for what each one models.
+
+Both follow the same base-function + pseudopotential approach described below.
 
 ## Overview
 
@@ -99,11 +106,14 @@ pip install -r requirements.txt
 
 ## Running the Simulation
 
-After installing the dependencies, run the simulation script from this directory:
+After installing the dependencies, `cd` into the specific geometry subdirectory you want to simulate and run its scripts in order:
 
 ```bash
+cd 2D_Geometries/Hyperbolae_trap     # or any other geometry
 python gmsh_script.py
 python paul_trap_sim_DC.py
 python paul_trap_sim_RF.py
 python visualize_results.py
 ```
+
+The 3D geometries follow the same four-script pattern; PyVista will open interactive 3D windows showing volume renders, isosurfaces, and slice cuts of the resulting potentials.

@@ -1,0 +1,48 @@
+[
+  {
+    "model": "pinn_rf_seeded_params.pkl",
+    "architecture": "Seeded-holes discovery (deformed torus + blobs)",
+    "r0_cm": NaN,
+    "z0_cm": NaN,
+    "r0z0_source": "derived (level-surface intercept)",
+    "paul_ratio_r0sq_over_z0sq": NaN,
+    "isotropy_min_over_max_eig": 0.24684934318065643,
+    "secular_freqs_MHz": [
+      2.9082696437835693,
+      2.9474544525146484,
+      5.853541374206543
+    ],
+    "trap_depth_max_eV_at_r0.05cm": 60.580055236816406,
+    "trap_depth_mean_eV_at_r0.05cm": 27.978410720825195,
+    "locus_cm": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "locus_offset_from_origin_um": 0.0,
+    "stable": true
+  },
+  {
+    "model": "pinn_vanilla_50k.pkl",
+    "architecture": "Vanilla (tanh + soft BC)",
+    "r0_cm": 0.09917969580500853,
+    "z0_cm": 0.07067397285401701,
+    "r0z0_source": "derived (level-surface intercept)",
+    "paul_ratio_r0sq_over_z0sq": 1.9693664414623546,
+    "isotropy_min_over_max_eig": 0.2503184378147125,
+    "secular_freqs_MHz": [
+      1.2665810585021973,
+      1.2947287559509277,
+      2.531550168991089
+    ],
+    "trap_depth_max_eV_at_r0.05cm": 13.382280349731445,
+    "trap_depth_mean_eV_at_r0.05cm": 6.691699504852295,
+    "locus_cm": [
+      -0.00018316120258532465,
+      3.4119439078494906e-05,
+      0.0002658748999238014
+    ],
+    "locus_offset_from_origin_um": 3.2465617656707764,
+    "stable": true
+  }
+]

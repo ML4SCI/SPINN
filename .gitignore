@@ -1,0 +1,11 @@
+.DS_Store
+*/.venv/
+*/.DS_Store
+*/*/.DS_Store
+*/*/*/.DS_Store
+*/*/*/*/.DS_Store
+*/*/__pycache__/
+# Large/binary artifacts — regenerable, not for git (match at any depth)
+*.pkl
+*.dat
+*.msh
