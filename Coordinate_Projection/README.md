@@ -29,26 +29,26 @@ not output deformed coordinates.
 From `SPINN/`:
 
 ```bash
-python -m experiments.potential_pinn_architectures.run --model all
+python -m potential_pinn_architectures.run --model all
 ```
 
 For a quick smoke run:
 
 ```bash
-python -m experiments.potential_pinn_architectures.run \
+python -m potential_pinn_architectures.run \
   --model all --steps 10 --n-interior 64 --n-world 32 --n-electrode 32 --skip-devsim
 ```
 
 Run one model:
 
 ```bash
-python -m experiments.potential_pinn_architectures.run --model pixel --steps 5000
+python -m potential_pinn_architectures.run --model pixel --steps 5000
 ```
 
 Override hyperparameters:
 
 ```bash
-python -m experiments.potential_pinn_architectures.run \
+python -m potential_pinn_architectures.run \
   --model pig \
   --override model.pig_num_gaussians=3000 \
   --override training.optimizer=adam
@@ -56,7 +56,7 @@ python -m experiments.potential_pinn_architectures.run \
 
 ## Outputs
 
-Each model writes to `experiments/potential_pinn_architectures/results/<model>/`:
+Each model writes to `potential_pinn_architectures/results/<model>/`:
 
 - `config.json`
 - `training_history.csv`
