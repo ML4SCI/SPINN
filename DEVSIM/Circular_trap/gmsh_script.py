@@ -53,18 +53,18 @@ def make_circle_with_physical_name(cx, cy, r, mesh_size, surface_name, interface
 #########
 
 # Parameters
-world_size_x = 2.5
-world_size_y = 2.0
-radius = 0.5e-1 # r=0.5 mm
-offset = 1e-1 # offset=
+world_size_x = 0.5
+world_size_y = 0.5
+radius = 0.5e-1 # r = 0.5 mm
+offset = 1e-1 # offset = 1 mm
 
-world_mesh_size = 0.025
+world_mesh_size = 0.01
 mesh_size = 0.0025
 
-N_distance = 1.25e-1 # 1mm
-S_distance = 1.25e-1 # 1mm
-W_distance = 1.25e-1 # 1mm
-E_distance = 1.25e-1 # 1mm
+N_distance = 1.25e-1 # 1.25 mm
+S_distance = 1.25e-1 # 1.25 mm
+W_distance = 1.25e-1 # 1.25 mm
+E_distance = 1.25e-1 # 1.25 mm
 
 ######################
 ####### WORLD ########

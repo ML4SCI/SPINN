@@ -27,8 +27,8 @@ config = {
     },
 
     "geometry": {
-        "world_size_x": 2.5,
-        "world_size_y": 2.0,
+        "world_size_x": 0.5,
+        "world_size_y": 0.5,
         "radius": 0.5e-1,
         "N_distance": 1.25e-1,
         "S_distance": 1.25e-1,
@@ -37,12 +37,19 @@ config = {
     },
 
     "boundary_conditions": {
-        "world_voltage": 0.0,
+        # Outer world boundary condition.
+        # type = "dirichlet" enforces Phi = value.
+        # type = "neumann" enforces dPhi/dn = value, where n is the outward normal.
+        # The Neumann value is in volts per geometry unit. Here geometry units are cm.
+        "world": {
+            "type": "neumann",
+            "value": 0.0,
+        },
         "rf_voltages": {
             "North": 0.0,
             "South": 0.0,
-            "West": 300.0,
-            "East": 300.0,
+            "West": 1.0,
+            "East": 1.0,
         },
     },
 
@@ -60,7 +67,7 @@ config = {
         "bc_weight": 100.0,
         "print_every": 100,
 
-        "use_lr_scheduler": True,
+        "use_lr_scheduler": False,
         "lr_scheduler": {
             "factor": 0.5,
             "patience": 300,
@@ -68,7 +75,7 @@ config = {
         },
 
     "use_grad_clip": True,
-    "grad_clip_max_norm": 1.0,
+    "grad_clip_max_norm": 10.0,
     },
 
     "evaluation": {
@@ -148,7 +155,18 @@ electrodes = {
 
 bc = config["boundary_conditions"]
 rf_voltages = bc["rf_voltages"]
-world_voltage = bc["world_voltage"]
+world_bc = bc.get("world", {
+    "type": "dirichlet",
+    "value": bc.get("world_voltage", 0.0),
+})
+world_bc_type = world_bc["type"].lower()
+world_bc_value = float(world_bc["value"])
+
+if world_bc_type not in {"dirichlet", "neumann"}:
+    raise ValueError(
+        "boundary_conditions['world']['type'] must be either "
+        "'dirichlet' or 'neumann'."
+    )
 
 
 # -----------------------------
@@ -179,22 +197,34 @@ def sample_interior(n):
 
 
 def sample_world_boundary(n):
-    n_each = n // 4
+    n_side = [n // 4] * 4
+    for i in range(n % 4):
+        n_side[i] += 1
 
-    xb = np.random.uniform(xmin, xmax, n_each)
-    xt = np.random.uniform(xmin, xmax, n_each)
-    yl = np.random.uniform(ymin, ymax, n_each)
-    yr = np.random.uniform(ymin, ymax, n_each)
+    n_bottom, n_top, n_left, n_right = n_side
 
-    bottom = np.column_stack([xb, np.full(n_each, ymin)])
-    top = np.column_stack([xt, np.full(n_each, ymax)])
-    left = np.column_stack([np.full(n_each, xmin), yl])
-    right = np.column_stack([np.full(n_each, xmax), yr])
+    xb = np.random.uniform(xmin, xmax, n_bottom)
+    xt = np.random.uniform(xmin, xmax, n_top)
+    yl = np.random.uniform(ymin, ymax, n_left)
+    yr = np.random.uniform(ymin, ymax, n_right)
+
+    bottom = np.column_stack([xb, np.full(n_bottom, ymin)])
+    top = np.column_stack([xt, np.full(n_top, ymax)])
+    left = np.column_stack([np.full(n_left, xmin), yl])
+    right = np.column_stack([np.full(n_right, xmax), yr])
 
     xy = np.vstack([bottom, top, left, right]).astype(np.float32)
-    v = np.full((len(xy), 1), world_voltage, dtype=np.float32)
 
-    return xy, v
+    normals = np.vstack([
+        np.tile([0.0, -1.0], (n_bottom, 1)),
+        np.tile([0.0,  1.0], (n_top, 1)),
+        np.tile([-1.0, 0.0], (n_left, 1)),
+        np.tile([ 1.0, 0.0], (n_right, 1)),
+    ]).astype(np.float32)
+
+    values = np.full((len(xy), 1), world_bc_value, dtype=np.float32)
+
+    return xy, normals, values
 
 
 def sample_circle_boundary(cx, cy, r, n):
@@ -269,6 +299,26 @@ def laplacian(phi, xy):
     return phi_xx + phi_yy
 
 
+def world_boundary_loss(model, xy_world, n_world, values_world):
+    if world_bc_type == "dirichlet":
+        phi_world = model(xy_world)
+        return torch.mean((phi_world - values_world)**2)
+
+    if world_bc_type == "neumann":
+        phi_world = model(xy_world)
+        grad_world = torch.autograd.grad(
+            phi_world,
+            xy_world,
+            grad_outputs=torch.ones_like(phi_world),
+            create_graph=True,
+        )[0]
+
+        dphi_dn = torch.sum(grad_world * n_world, dim=1, keepdim=True)
+        return torch.mean((dphi_dn - values_world)**2)
+
+    raise RuntimeError(f"Unknown world boundary condition type: {world_bc_type}")
+
+
 def pinn_loss(model):
     train_cfg = config["training"]
 
@@ -276,10 +326,14 @@ def pinn_loss(model):
     phi_int = model(xy_int)
     loss_pde = torch.mean(laplacian(phi_int, xy_int)**2)
 
-    xy_world, v_world = sample_world_boundary(train_cfg["n_world"])
-    xy_world = to_tensor(xy_world)
-    v_world = to_tensor(v_world)
-    loss_world = torch.mean((model(xy_world) - v_world)**2)
+    xy_world, n_world, values_world = sample_world_boundary(train_cfg["n_world"])
+    xy_world = to_tensor(
+        xy_world,
+        requires_grad=(world_bc_type == "neumann"),
+    )
+    n_world = to_tensor(n_world)
+    values_world = to_tensor(values_world)
+    loss_world = world_boundary_loss(model, xy_world, n_world, values_world)
 
     xy_el, v_el = sample_electrode_boundaries(train_cfg["n_electrode"])
     xy_el = to_tensor(xy_el)
@@ -304,6 +358,11 @@ def grad_norm(model):
 
 def train(model, run_dir):
     train_cfg = config["training"]
+
+    print(
+        f"World BC: {world_bc_type}, "
+        f"value={world_bc_value:g}"
+    )
 
     opt = torch.optim.Adam(model.parameters(), lr=train_cfg["lr"])
 
