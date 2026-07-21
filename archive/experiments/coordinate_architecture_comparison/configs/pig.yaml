@@ -1,0 +1,8 @@
+# PIG-style learnable-Gaussian coordinate projection (adapted to a 2D output head).
+# See README "Architecture assumptions" for what is faithful to Kang et al. 2025.
+model:
+  kind: pig
+  pig_num_gaussians: 256
+  pig_feature_dim: 4
+  pig_hidden_width: 16
+  pig_init_sigma: 0.1

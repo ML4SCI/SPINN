@@ -23,10 +23,8 @@ add_gmsh_contact(mesh=mesh, gmsh_name="Fifth_contact", region="air", material="m
 finalize_mesh(mesh=mesh)
 create_device(mesh=mesh, device=device)
 
-# ----------------------------
-# 2. Electrostatic PDE
-# ----------------------------
-eps0 = 8.854e-14   # F/cm if geometry is in cm
+# 2. electrostatic pde
+eps0 = 8.854e-14   # f/cm if geometry is in cm
 set_parameter(device=device, region=region, name="Permittivity", value=eps0)
 
 node_solution(device=device, region=region, name="Potential")
@@ -73,9 +71,7 @@ for c in contacts:
         node_model=f"{c}_bc", edge_charge_model="DField"
     )
 
-# ----------------------------
-# 3. Basis solve helper
-# ----------------------------
+# 3. basis solve helper
 def solve_basis(active_contact, all_contacts):
     for c in all_contacts:
         if c == "world_boundary_contact":
@@ -94,9 +90,7 @@ def solve_basis(active_contact, all_contacts):
 
     return vals
 
-# ----------------------------
-# 4. Compute basis functions
-# ----------------------------
+# 4. compute basis functions
 phi_first_contact = solve_basis("First_contact", contacts)
 phi_third_contact = solve_basis("Third_contact", contacts)
 phi_fifth_contact = solve_basis("Fifth_contact", contacts)

@@ -1,0 +1,27 @@
+{
+  "distance_cm": 0.125,
+  "radius_cm": 0.05,
+  "fit_radius_cm": 0.035,
+  "fit_rmse_V": 0.01977114730506376,
+  "potential_hessian": [
+    [
+      50941.74819736572,
+      7.051547970225175
+    ],
+    [
+      7.051547970225175,
+      -50937.27241118798
+    ]
+  ],
+  "potential_hessian_eigenvalues": [
+    -50937.272899260286,
+    50941.748685438026
+  ],
+  "laplace_trace_relative": 8.786086644527026e-05,
+  "quadrupole_strength_V_per_unit2": 50939.51079234916,
+  "quadrupole_efficiency": 0.9551158273565468,
+  "secular_frequencies_Hz": [
+    2157316.9828253137,
+    2157506.5432195626
+  ]
+}

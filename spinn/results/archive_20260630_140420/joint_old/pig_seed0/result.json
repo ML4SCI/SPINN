@@ -1,0 +1,181 @@
+{
+  "backend": "pig",
+  "seed": 0,
+  "final_eta_pinn": {
+    "eta_autograd": 3.7390296459198,
+    "eta_fit": 2.1395613350787817,
+    "a_quadrupole": 1.0697806675393908,
+    "b_xy": -0.061547239379938896,
+    "fit_rmse": 0.012523329527427695,
+    "fit_r2": 0.8461314874457437,
+    "n_points": 709,
+    "purity_c2": 0.4858803300202205,
+    "c2": 1.0702499644416632
+  },
+  "final_eta_fem": 1.6042758748633972,
+  "skipped_nonfinite_steps": 0,
+  "history": [
+    {
+      "backend": "pig",
+      "seed": 0,
+      "step": 0,
+      "eta_pinn": -0.8094314875034623,
+      "loss_pde": 0.9218103289604187,
+      "loss_bc": 2.493544101715088,
+      "loss_eta": -0.3698086440563202,
+      "loss_J": 0.0,
+      "loss_gap": 0.0,
+      "loss_curv": 0.0,
+      "min_detJ": 0.9999376535415649,
+      "min_gap": 0.743487536907196,
+      "max_curv": 0.8740306496620178,
+      "wall_time_sec": 0.2818779945373535,
+      "eta_fem": 1.901918855983667
+    },
+    {
+      "backend": "pig",
+      "seed": 0,
+      "step": 100,
+      "eta_pinn": 1.8168044350435355,
+      "loss_pde": 0.30394524335861206,
+      "loss_bc": 0.001484733889810741,
+      "loss_eta": -2.3153882026672363,
+      "loss_J": 0.0,
+      "loss_gap": 0.0,
+      "loss_curv": 0.0,
+      "min_detJ": 0.9738143086433411,
+      "min_gap": 0.7629817724227905,
+      "max_curv": 0.8876517415046692,
+      "wall_time_sec": 19.147552251815796,
+      "eta_fem": 1.8508509123382209
+    },
+    {
+      "backend": "pig",
+      "seed": 0,
+      "step": 200,
+      "eta_pinn": 1.926987859332332,
+      "loss_pde": 0.15409351885318756,
+      "loss_bc": 0.0003693849721457809,
+      "loss_eta": -2.8407928943634033,
+      "loss_J": 0.0,
+      "loss_gap": 0.0,
+      "loss_curv": 0.0,
+      "min_detJ": 0.9405887722969055,
+      "min_gap": 0.8133845329284668,
+      "max_curv": 0.9211335778236389,
+      "wall_time_sec": 38.13813018798828,
+      "eta_fem": 1.6773450911548244
+    },
+    {
+      "backend": "pig",
+      "seed": 0,
+      "step": 300,
+      "eta_pinn": 2.047522063544203,
+      "loss_pde": 0.12033044546842575,
+      "loss_bc": 0.00015922071179375052,
+      "loss_eta": -3.3683247566223145,
+      "loss_J": 0.0,
+      "loss_gap": 0.0,
+      "loss_curv": 0.0,
+      "min_detJ": 0.9276441931724548,
+      "min_gap": 0.8397412896156311,
+      "max_curv": 0.9271647930145264,
+      "wall_time_sec": 57.0425751209259,
+      "eta_fem": 1.6463037474488273
+    },
+    {
+      "backend": "pig",
+      "seed": 0,
+      "step": 399,
+      "eta_pinn": 2.1395613350787817,
+      "loss_pde": 0.1104196086525917,
+      "loss_bc": 0.00013147872232366353,
+      "loss_eta": -3.7390265464782715,
+      "loss_J": 0.0,
+      "loss_gap": 0.0,
+      "loss_curv": 0.0,
+      "min_detJ": 0.922575831413269,
+      "min_gap": 0.8482197523117065,
+      "max_curv": 0.9305202960968018,
+      "wall_time_sec": 75.73199319839478,
+      "eta_fem": 1.6042758748633972
+    }
+  ],
+  "config": {
+    "experiment": {
+      "name": "joint_pig_four_rod",
+      "seed": 0,
+      "geometry": "circular_four_rod",
+      "r0": 1.0,
+      "rod_radius": 1.145,
+      "outer_radius": 5.0,
+      "V0": 1.0
+    },
+    "shape_network": {
+      "type": "residual_mlp",
+      "hidden_layers": 5,
+      "width": 64,
+      "activation": "tanh",
+      "alpha": 0.1,
+      "identity_pretrain_steps": 200,
+      "jacobian_eps": 0.05,
+      "symmetric": true
+    },
+    "physics_backend": {
+      "type": "pig",
+      "activation": "tanh",
+      "mlp_hidden_layers": 6,
+      "mlp_width": 128,
+      "pixel_grid_resolution": 64,
+      "pixel_feature_dim": 16,
+      "pixel_num_grids": 4,
+      "pixel_decoder_layers": 2,
+      "pixel_decoder_width": 64,
+      "K": 512,
+      "feature_dim": 16,
+      "decoder_layers": 2,
+      "decoder_width": 64,
+      "init_sigma": 0.4
+    },
+    "sampling": {
+      "interior_points": 2000,
+      "electrode_boundary_points_per_electrode": 200,
+      "outer_boundary_points": 600,
+      "center_probe_radius": 0.25,
+      "center_probe_grid": 31,
+      "resample_every": 500
+    },
+    "loss_weights": {
+      "pde": 1.0,
+      "bc": 100.0,
+      "eta": 0.05,
+      "jacobian": 10.0,
+      "gap": 100.0,
+      "curvature": 1.0,
+      "anchor": 10.0
+    },
+    "optimizer": {
+      "type": "adam",
+      "steps": 60000,
+      "lr_theta": 0.001,
+      "lr_phi": 0.0002,
+      "lr_pig_centers": 5e-05,
+      "lr_pig_covariances": 5e-05,
+      "scheduler": "cosine_decay",
+      "lr_fixed_mlp": 0.001,
+      "lr_fixed_pixel": 0.002,
+      "lr_fixed_pig_decoder": 0.001,
+      "lr_fixed_pig_centers": 0.0001
+    },
+    "validation": {
+      "fem_checkpoint_every": 100,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "primary_metric": "eta_fem",
+      "fem_grid": 160
+    }
+  }
+}

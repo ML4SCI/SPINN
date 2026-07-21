@@ -1,0 +1,59 @@
+{
+  "seed": 0,
+  "output_root": "SPINN/Hyperparameter/results/runs",
+  "physics": {
+    "e_charge": 1.602e-19,
+    "amu": 1.66054e-27,
+    "ion_mass_amu": 40.0,
+    "rf_frequency_hz": 10200000.0,
+    "geom_unit_to_m": 0.01
+  },
+  "geometry": {
+    "world_size_x": 2.5,
+    "world_size_y": 2.0,
+    "radius": 0.05,
+    "N_distance": 0.125,
+    "S_distance": 0.125,
+    "W_distance": 0.125,
+    "E_distance": 0.125
+  },
+  "boundary_conditions": {
+    "world_voltage": 0.0,
+    "rf_voltages": {
+      "North": 0.0,
+      "South": 0.0,
+      "West": 300.0,
+      "East": 300.0
+    }
+  },
+  "model": {
+    "width": 128,
+    "depth": 6,
+    "activation": "tanh"
+  },
+  "training": {
+    "steps": 20000,
+    "lr": 0.001,
+    "optimizer": "adam",
+    "n_int": 4096,
+    "n_world": 1024,
+    "n_electrode": 2048,
+    "bc_weight": 100.0,
+    "print_every": 100,
+    "use_lr_scheduler": true,
+    "lr_scheduler": {
+      "factor": 0.5,
+      "patience": 300,
+      "min_lr": 1e-06
+    },
+    "use_grad_clip": true,
+    "grad_clip_max_norm": 1.0
+  },
+  "evaluation": {
+    "nx": 1000,
+    "ny": 800
+  },
+  "run_name": "depth_pinn",
+  "variant_name": "depth_6",
+  "sweep_name": "depth"
+}

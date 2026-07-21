@@ -25,23 +25,23 @@ def make_rectangle_with_physical_name(cx, cy, length, width, mesh_size, surface_
     hx = length / 2.0
     hy = width / 2.0
 
-    # Rectangle corner points (clockwise starting bottom-left)
+    # rectangle corner points (clockwise starting bottom-left)
     p1 = gmsh.model.geo.addPoint(cx - hx, cy - hy, 0, mesh_size)
     p2 = gmsh.model.geo.addPoint(cx + hx, cy - hy, 0, mesh_size)
     p3 = gmsh.model.geo.addPoint(cx + hx, cy + hy, 0, mesh_size)
     p4 = gmsh.model.geo.addPoint(cx - hx, cy + hy, 0, mesh_size)
 
-    # Rectangle edges
+    # rectangle edges
     l1 = gmsh.model.geo.addLine(p1, p2)
     l2 = gmsh.model.geo.addLine(p2, p3)
     l3 = gmsh.model.geo.addLine(p3, p4)
     l4 = gmsh.model.geo.addLine(p4, p1)
 
-    # Closed loop and surface
+    # closed loop and surface
     loop = gmsh.model.geo.addCurveLoop([l1, l2, l3, l4])
     surface = gmsh.model.geo.addPlaneSurface([loop])
 
-    # Physical groups
+    # physical groups
     surf_tag = gmsh.model.addPhysicalGroup(2, [surface])
     gmsh.model.setPhysicalName(2, surf_tag, surface_name)
 
@@ -51,9 +51,8 @@ def make_rectangle_with_physical_name(cx, cy, length, width, mesh_size, surface_
     return surface, loop, surf_tag, interface_tag
 
 
-#########
 
-# Parameters
+# parameters
 world_size_x = 2.0
 world_size_y = 1.5
 
@@ -68,25 +67,21 @@ S_distance = .75e-1
 W_distance = 1.e-1
 E_distance = 1.e-1
 
-######################
-####### WORLD ########
-######################
+# world
 
-# Clockwise starting bottom left
+# clockwise starting bottom left
 p1 = gmsh.model.geo.addPoint(-world_size_x / 2, -world_size_y / 2, 0, world_mesh_size)
 p2 = gmsh.model.geo.addPoint( world_size_x / 2, -world_size_y / 2, 0, world_mesh_size)
 p3 = gmsh.model.geo.addPoint( world_size_x / 2,  world_size_y / 2, 0, world_mesh_size)
 p4 = gmsh.model.geo.addPoint(-world_size_x / 2,  world_size_y / 2, 0, world_mesh_size)
 
-# Outer frame
+# outer frame
 l1 = gmsh.model.geo.addLine(p1, p2)
 l2 = gmsh.model.geo.addLine(p2, p3)
 l3 = gmsh.model.geo.addLine(p3, p4)
 l4 = gmsh.model.geo.addLine(p4, p1)
 
-#######################
-##### RECTANGLES ######
-#######################
+# rectangles
 
 N_surface, N_loop, N_tag, N_interface = make_rectangle_with_physical_name(
     -W_distance, N_distance, rect_length, rect_width, mesh_size, "Northwest", "Northwest_contact"
@@ -104,24 +99,22 @@ E_surface, E_loop, E_tag, E_interface = make_rectangle_with_physical_name(
     E_distance, -S_distance, rect_length, rect_width, mesh_size, "Southeast", "Southeast_contact"
 )
 
-######################
-#### ADD Surfaces ####
-######################
+# add surfaces
 
 world_loop = gmsh.model.geo.addCurveLoop([l1, l2, l3, l4])
 world_surface = gmsh.model.geo.addPlaneSurface([world_loop, N_loop, S_loop, W_loop, E_loop])
 
-# Synchronize
+# synchronize
 gmsh.model.geo.synchronize()
 
-# Physical regions
+# physical regions
 air_tag = gmsh.model.addPhysicalGroup(2, [world_surface])
 gmsh.model.setPhysicalName(2, air_tag, "air")
 
 world_boundary_tag = gmsh.model.addPhysicalGroup(1, [l1, l2, l3, l4])
 gmsh.model.setPhysicalName(1, world_boundary_tag, "world_boundary")
 
-# Mesh
+# mesh
 gmsh.model.mesh.generate(2)
 
 gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)

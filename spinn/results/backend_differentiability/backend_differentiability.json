@@ -1,0 +1,41 @@
+[
+  {
+    "backend": "mlp",
+    "dVdx_mean": 0.16393013298511505,
+    "dVdx_max": 0.35059717297554016,
+    "d2V_diag_mean": 0.054182618856430054,
+    "d2V_diag_max": 0.1466493308544159,
+    "nonzero_dVdx_fraction": 1.0,
+    "nonzero_d2V_fraction": 1.0,
+    "grad_phi_backend_meanV": 0.0004180676187388599,
+    "mean_displacement_initial": 0.0,
+    "grad_phi_eta": 0.0,
+    "grad_phi_quad": 0.6873634457588196
+  },
+  {
+    "backend": "pixel",
+    "dVdx_mean": 4.4208081817487255e-05,
+    "dVdx_max": 0.00016249601321760565,
+    "d2V_diag_mean": 0.00019940959464292973,
+    "d2V_diag_max": 0.0006683249957859516,
+    "nonzero_dVdx_fraction": 1.0,
+    "nonzero_d2V_fraction": 1.0,
+    "grad_phi_backend_meanV": 2.8518220673845462e-08,
+    "mean_displacement_initial": 0.0,
+    "grad_phi_eta": 2.9699185688514262e-06,
+    "grad_phi_quad": 0.09410568326711655
+  },
+  {
+    "backend": "pig",
+    "dVdx_mean": 0.008281311951577663,
+    "dVdx_max": 0.020828768610954285,
+    "d2V_diag_mean": 0.020206283777952194,
+    "d2V_diag_max": 0.05219881609082222,
+    "nonzero_dVdx_fraction": 1.0,
+    "nonzero_d2V_fraction": 1.0,
+    "grad_phi_backend_meanV": 2.6692834580899216e-05,
+    "mean_displacement_initial": 0.0,
+    "grad_phi_eta": 0.00030301741207949817,
+    "grad_phi_quad": 0.14814430475234985
+  }
+]

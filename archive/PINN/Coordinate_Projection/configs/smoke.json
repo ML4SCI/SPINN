@@ -1,0 +1,23 @@
+{
+  "run_name": "coordinate_projection_smoke",
+  "model": {
+    "width": 16,
+    "depth": 2,
+    "activation": "tanh"
+  },
+  "training": {
+    "steps": 3,
+    "n_interior": 32,
+    "n_map": 32,
+    "n_world": 32,
+    "n_electrode_per_electrode": 8,
+    "print_every": 1
+  },
+  "optimization": {
+    "steps": 3
+  },
+  "validation": {
+    "n_interior": 32,
+    "run_devsim": false
+  }
+}

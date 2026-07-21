@@ -1,0 +1,6 @@
+[submodule "external/PIXEL"]
+	path = external/PIXEL
+	url = https://github.com/NamGyuKang/PIXEL.git
+[submodule "external/Physics-Informed-Gaussians"]
+	path = external/Physics-Informed-Gaussians
+	url = https://github.com/NamGyuKang/Physics-Informed-Gaussians.git

@@ -1,0 +1,71 @@
+[
+  {
+    "method": "existing_coordinate_projection_pinn",
+    "steps": 6000,
+    "seed": 0,
+    "gradient": 17.49359893798828,
+    "objective": 1.0723958015441895,
+    "sign_matches_devsim": false,
+    "train_seconds": 188.35863966599572
+  },
+  {
+    "method": "existing_coordinate_projection_pinn",
+    "steps": 20000,
+    "seed": 0,
+    "gradient": 10.244930267333984,
+    "objective": 1.1146721839904785,
+    "sign_matches_devsim": false,
+    "train_seconds": 788.170769208984
+  },
+  {
+    "method": "existing_coordinate_projection_pinn",
+    "steps": 50000,
+    "seed": 0,
+    "gradient": -5.064554214477539,
+    "objective": 0.9914806485176086,
+    "sign_matches_devsim": true,
+    "train_seconds": 1607.4693527080235
+  },
+  {
+    "method": "instructor_coordinate_projection",
+    "steps": 6000,
+    "seed": 0,
+    "train_seconds": 92.39159533299971,
+    "rms_identity_error": 9.962491591167472e-07,
+    "max_displacement": 4.613945052820973e-06,
+    "det_jacobian_min": 0.9999841882881574,
+    "det_jacobian_max": 1.0000051100725735,
+    "det_jacobian_mean": 0.999998425198452,
+    "jacobian_determinant_all_positive": true,
+    "condition_number_max": 1.0000204038264877,
+    "condition_number_mean": 1.0000045959958817
+  },
+  {
+    "method": "instructor_coordinate_projection",
+    "steps": 20000,
+    "seed": 0,
+    "train_seconds": 301.64101104199653,
+    "rms_identity_error": 8.759140076802023e-07,
+    "max_displacement": 2.130778816068679e-06,
+    "det_jacobian_min": 0.9999866479599419,
+    "det_jacobian_max": 1.0000112045590412,
+    "det_jacobian_mean": 1.000000031878399,
+    "jacobian_determinant_all_positive": true,
+    "condition_number_max": 1.0000166156895103,
+    "condition_number_mean": 1.0000036145097706
+  },
+  {
+    "method": "instructor_coordinate_projection",
+    "steps": 50000,
+    "seed": 0,
+    "train_seconds": 1118.0555895410362,
+    "rms_identity_error": 6.020852819905518e-07,
+    "max_displacement": 1.574757888240125e-06,
+    "det_jacobian_min": 0.9999928702888594,
+    "det_jacobian_max": 1.0000033399511161,
+    "det_jacobian_mean": 0.999999997679075,
+    "jacobian_determinant_all_positive": true,
+    "condition_number_max": 1.0000111023801057,
+    "condition_number_mean": 1.0000021830159667
+  }
+]

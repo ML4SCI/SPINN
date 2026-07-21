@@ -1,0 +1,17 @@
+{
+  "base_config": "SPINN/Hyperparameter/configs/smoke.json",
+  "compare_after_each": true,
+  "max_compare_points": 1000,
+  "experiments": [
+    {
+      "sweep_name": "smoke",
+      "variant_name": "smoke_baseline",
+      "overrides": {}
+    },
+    {
+      "sweep_name": "smoke",
+      "variant_name": "smoke_relu",
+      "overrides": {"model": {"activation": "relu"}}
+    }
+  ]
+}

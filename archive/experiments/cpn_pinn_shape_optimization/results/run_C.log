@@ -1,0 +1,22 @@
+     0 total=5.285e+00 pde=6.943e-04 pseudo=2.821e-01 bc=5.003e-01
+   100 total=5.129e+00 pde=3.403e-03 pseudo=4.063e-01 bc=4.719e-01
+   200 total=1.305e+04 pde=1.305e+04 pseudo=7.686e-01 bc=4.641e-01
+   300 total=7.281e+02 pde=7.231e+02 pseudo=3.870e-01 bc=4.655e-01
+   400 total=5.047e+00 pde=9.571e-02 pseudo=2.880e-01 bc=4.663e-01
+   500 total=4.857e+00 pde=4.664e-03 pseudo=3.755e-01 bc=4.477e-01
+   600 total=4.443e+00 pde=1.405e-04 pseudo=2.763e-01 bc=4.166e-01
+   700 total=4.230e+00 pde=7.364e-03 pseudo=1.831e-01 bc=4.039e-01
+   800 total=4.092e+00 pde=8.360e-04 pseudo=7.664e-02 bc=4.015e-01
+   900 total=4.035e+00 pde=1.149e-03 pseudo=4.987e-02 bc=3.984e-01
+  1000 total=4.168e+00 pde=6.363e-04 pseudo=2.112e-01 bc=3.957e-01
+  1100 total=3.986e+00 pde=6.717e-04 pseudo=5.893e-02 bc=3.926e-01
+  1200 total=3.913e+00 pde=7.086e-04 pseudo=1.778e-02 bc=3.894e-01
+  1300 total=3.892e+00 pde=3.472e-04 pseudo=2.369e-02 bc=3.867e-01
+  1400 total=3.856e+00 pde=5.835e-04 pseudo=1.136e-02 bc=3.844e-01
+  1500 total=3.829e+00 pde=5.579e-04 pseudo=3.786e-03 bc=3.825e-01
+  1600 total=3.921e+00 pde=3.212e-04 pseudo=1.124e-01 bc=3.809e-01
+  1700 total=3.834e+00 pde=7.549e-05 pseudo=4.106e-02 bc=3.793e-01
+  1800 total=3.780e+00 pde=8.336e-05 pseudo=5.807e-04 bc=3.779e-01
+  1900 total=3.783e+00 pde=9.709e-05 pseudo=1.496e-02 bc=3.768e-01
+[run] variation C: gradient flow {'pinn_grads_finite_nonzero': True, 'cpn_grads_finite_nonzero': True}
+[run] wrote results to /Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/experiments/cpn_pinn_shape_optimization/results/C_joint

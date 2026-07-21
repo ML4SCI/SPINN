@@ -1,0 +1,7 @@
+# Vanilla residual-MLP coordinate projection.
+# Mirrors the architecture in PINN/Coordinate_Projection_Network/CPN.py.
+model:
+  kind: vanilla
+  mlp_width: 50
+  mlp_depth: 6
+  zero_last_layer: true

@@ -1,0 +1,31 @@
+experiment:
+  name: fixed_pig_four_rod
+  seed: 0
+  geometry: circular_four_rod
+  r0: 1.0
+  rod_radius: 1.145
+  outer_radius: 5.0
+  V0: 1.0
+physics_backend:
+  type: pig
+shape_network:
+  identity_pretrain_steps: 0
+sampling:
+  interior_points: 20000
+  electrode_boundary_points_per_electrode: 1000
+  outer_boundary_points: 3000
+  center_probe_radius: 0.25
+  center_probe_grid: 31
+  resample_every: 500
+loss_weights:
+  pde: 1.0
+  bc: 100.0
+optimizer:
+  type: adam
+  steps: 20000
+  scheduler: cosine_decay
+validation:
+  fem_checkpoint_every: 5000
+  seeds: [0, 1, 2]
+  primary_metric: eta_fem
+  fem_grid: 256

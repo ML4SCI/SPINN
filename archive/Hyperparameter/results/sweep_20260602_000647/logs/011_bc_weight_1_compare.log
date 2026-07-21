@@ -1,0 +1,24 @@
+{
+  "run_dir": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/runs/bc_weight_pinn_20260602_021939_bc_weight_1",
+  "devsim_rf": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/DEVSIM/Circular_trap/paul_trap_basis_RF.dat",
+  "n_points": 38854,
+  "phi_rf": {
+    "mse": 2437.385498046875,
+    "rmse": 49.3698844909668,
+    "mae": 34.85774230957031,
+    "p50_abs": 18.030277252197266,
+    "p95_abs": 110.79861450195312,
+    "max_abs": 147.0501251220703,
+    "mean_abs_percent_of_norm": 11.619247436523438,
+    "p95_abs_percent_of_norm": 36.9328727722168
+  },
+  "psi_rf_eV": {
+    "mse": 63.08229446411133,
+    "rmse": 7.942436218261719,
+    "mae": 3.9999935626983643,
+    "p50_abs": 0.1640596091747284,
+    "p95_abs": 19.673664093017578,
+    "max_abs": 34.216522216796875
+  }
+}
+Saved comparison metrics to /Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/runs/bc_weight_pinn_20260602_021939_bc_weight_1/comparison_metrics.json

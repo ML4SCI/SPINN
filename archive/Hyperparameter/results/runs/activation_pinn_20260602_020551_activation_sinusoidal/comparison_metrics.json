@@ -1,0 +1,23 @@
+{
+  "run_dir": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/runs/activation_pinn_20260602_020551_activation_sinusoidal",
+  "devsim_rf": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/DEVSIM/Circular_trap/paul_trap_basis_RF.dat",
+  "n_points": 38854,
+  "phi_rf": {
+    "mse": 12.336724281311035,
+    "rmse": 3.5123672485351562,
+    "mae": 2.0517780780792236,
+    "p50_abs": 0.9649267196655273,
+    "p95_abs": 8.235918045043945,
+    "max_abs": 21.9959716796875,
+    "mean_abs_percent_of_norm": 0.6839260458946228,
+    "p95_abs_percent_of_norm": 2.7453060150146484
+  },
+  "psi_rf_eV": {
+    "mse": 1.7493813037872314,
+    "rmse": 1.3226417303085327,
+    "mae": 0.5665035247802734,
+    "p50_abs": 0.005192674696445465,
+    "p95_abs": 3.2468461990356445,
+    "max_abs": 9.59646224975586
+  }
+}

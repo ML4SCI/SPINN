@@ -1,0 +1,23 @@
+{
+  "run_dir": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/runs/learning_rate_pinn_20260602_034642_lr_3e-3",
+  "devsim_rf": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/DEVSIM/Circular_trap/paul_trap_basis_RF.dat",
+  "n_points": 38854,
+  "phi_rf": {
+    "mse": 142.1842498779297,
+    "rmse": 11.924103736877441,
+    "mae": 8.063179016113281,
+    "p50_abs": 4.740962982177734,
+    "p95_abs": 27.297447204589844,
+    "max_abs": 40.980316162109375,
+    "mean_abs_percent_of_norm": 2.6877262592315674,
+    "p95_abs_percent_of_norm": 9.099148750305176
+  },
+  "psi_rf_eV": {
+    "mse": 6.573538303375244,
+    "rmse": 2.5638911724090576,
+    "mae": 1.2310043573379517,
+    "p50_abs": 0.03947305679321289,
+    "p95_abs": 6.460474967956543,
+    "max_abs": 11.989864349365234
+  }
+}

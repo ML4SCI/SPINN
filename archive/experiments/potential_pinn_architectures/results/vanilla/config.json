@@ -1,0 +1,51 @@
+{
+  "seed": 0,
+  "output_root": "experiments/potential_pinn_architectures/results",
+  "geometry": {
+    "world_size_x": 2.5,
+    "world_size_y": 2.0,
+    "radius": 0.05,
+    "north_distance": 0.125,
+    "south_distance": 0.125,
+    "west_distance": 0.125,
+    "east_distance": 0.125
+  },
+  "boundary": {
+    "world_voltage": 0.0,
+    "north_voltage": 0.0,
+    "south_voltage": 0.0,
+    "west_voltage": 300.0,
+    "east_voltage": 300.0
+  },
+  "training": {
+    "steps": 2000,
+    "lr": 0.001,
+    "optimizer": "adam",
+    "n_interior": 2048,
+    "n_world": 512,
+    "n_electrode": 1024,
+    "bc_weight": 100.0,
+    "print_every": 200,
+    "eval_every": 200,
+    "grad_clip": 1.0
+  },
+  "model": {
+    "kind": "vanilla",
+    "activation": "tanh",
+    "vanilla_width": 128,
+    "vanilla_depth": 4,
+    "pixel_grid_resolution": 32,
+    "pixel_feature_dim": 4,
+    "pixel_hidden_width": 16,
+    "pixel_num_grids": 4,
+    "pig_num_gaussians": 512,
+    "pig_feature_dim": 4,
+    "pig_hidden_width": 16,
+    "pig_init_sigma": 0.1
+  },
+  "evaluation": {
+    "devsim_rf": "DEVSIM/Circular_trap/paul_trap_basis_RF.dat",
+    "max_points_plot": 20000,
+    "chunk_size": 8192
+  }
+}

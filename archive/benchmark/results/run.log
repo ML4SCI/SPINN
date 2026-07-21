@@ -1,0 +1,846 @@
+[benchmark] running devsim_fem ...
+Searching DEVSIM_MATH_LIBS="libopenblas.dylib:liblapack.dylib:libblas.dylib"
+Loading "libopenblas.dylib": MISSING DLL
+Loading "liblapack.dylib": ALL BLAS/LAPACK LOADED
+Skipping libblas.dylib
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 1 (Line)
+Info    : [ 10%] Meshing curve 2 (Line)
+Info    : [ 20%] Meshing curve 3 (Line)
+Info    : [ 20%] Meshing curve 4 (Line)
+Info    : [ 30%] Meshing curve 5 (Circle)
+Info    : [ 30%] Meshing curve 6 (Circle)
+Info    : [ 40%] Meshing curve 7 (Circle)
+Info    : [ 40%] Meshing curve 8 (Circle)
+Info    : [ 50%] Meshing curve 9 (Circle)
+Info    : [ 50%] Meshing curve 10 (Circle)
+Info    : [ 60%] Meshing curve 11 (Circle)
+Info    : [ 60%] Meshing curve 12 (Circle)
+Info    : [ 70%] Meshing curve 13 (Circle)
+Info    : [ 70%] Meshing curve 14 (Circle)
+Info    : [ 80%] Meshing curve 15 (Circle)
+Info    : [ 80%] Meshing curve 16 (Circle)
+Info    : [ 90%] Meshing curve 17 (Circle)
+Info    : [ 90%] Meshing curve 18 (Circle)
+Info    : [100%] Meshing curve 19 (Circle)
+Info    : [100%] Meshing curve 20 (Circle)
+Info    : Done meshing 1D (Wall 0.000860416s, CPU 0.000662s)
+Info    : Meshing 2D...
+Info    : [  0%] Meshing surface 1 (Plane, Frontal-Delaunay)
+Info    : [ 30%] Meshing surface 2 (Plane, Frontal-Delaunay)
+Info    : [ 50%] Meshing surface 3 (Plane, Frontal-Delaunay)
+Info    : [ 70%] Meshing surface 4 (Plane, Frontal-Delaunay)
+Info    : [ 90%] Meshing surface 5 (Plane, Frontal-Delaunay)
+Info    : Done meshing 2D (Wall 0.223528s, CPU 0.218978s)
+Info    : 18467 nodes 37268 elements
+Info    : Writing '/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/devsim_cache/solve_0.125000/mesh.msh'...
+Info    : Done writing '/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/devsim_cache/solve_0.125000/mesh.msh'
+Searching DEVSIM_MATH_LIBS="libopenblas.dylib:liblapack.dylib:libblas.dylib"
+Loading "libopenblas.dylib": MISSING DLL
+Loading "liblapack.dylib": ALL BLAS/LAPACK LOADED
+Skipping libblas.dylib
+loading UMFPACK 5.1 as direct solver
+Physical group name East has 0 Tetrahedra.
+Physical group name East has 1210 Triangles.
+Physical group name East has 1855 Lines.
+Physical group name East has 646 Points.
+Physical group name East_contact has 0 Tetrahedra.
+Physical group name East_contact has 0 Triangles.
+Physical group name East_contact has 80 Lines.
+Physical group name East_contact has 80 Points.
+Physical group name North has 0 Tetrahedra.
+Physical group name North has 1210 Triangles.
+Physical group name North has 1855 Lines.
+Physical group name North has 646 Points.
+Physical group name North_contact has 0 Tetrahedra.
+Physical group name North_contact has 0 Triangles.
+Physical group name North_contact has 80 Lines.
+Physical group name North_contact has 80 Points.
+Physical group name South has 0 Tetrahedra.
+Physical group name South has 1210 Triangles.
+Physical group name South has 1855 Lines.
+Physical group name South has 646 Points.
+Physical group name South_contact has 0 Tetrahedra.
+Physical group name South_contact has 0 Triangles.
+Physical group name South_contact has 80 Lines.
+Physical group name South_contact has 80 Points.
+Physical group name West has 0 Tetrahedra.
+Physical group name West has 1210 Triangles.
+Physical group name West has 1855 Lines.
+Physical group name West has 646 Points.
+Physical group name West_contact has 0 Tetrahedra.
+Physical group name West_contact has 0 Triangles.
+Physical group name West_contact has 80 Lines.
+Physical group name West_contact has 80 Points.
+Physical group name air has 0 Tetrahedra.
+Physical group name air has 31858 Triangles.
+Physical group name air has 48060 Lines.
+Physical group name air has 16199 Points.
+Physical group name world_boundary has 0 Tetrahedra.
+Physical group name world_boundary has 0 Triangles.
+Physical group name world_boundary has 226 Lines.
+Physical group name world_boundary has 226 Points.
+Device paul_trap has 18463 coordinates with max index 18463
+Region East has 646 nodes.
+Region North has 646 nodes.
+Region South has 646 nodes.
+Region West has 646 nodes.
+Region air has 16199 nodes.
+Contact East_contact in region air with 80 nodes
+Contact North_contact in region air with 80 nodes
+Contact South_contact in region air with 80 nodes
+Contact West_contact in region air with 80 nodes
+Contact world_boundary_contact in region air with 226 nodes
+number of equations 16199
+Iteration: 0
+  Device: "paul_trap"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+    Region: "air"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+      Equation: "PotentialEquation"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+Iteration: 1
+  Device: "paul_trap"	RelError: 7.97388e-15	AbsError: 8.52289e-13
+    Region: "air"	RelError: 7.97388e-15	AbsError: 8.52289e-13
+      Equation: "PotentialEquation"	RelError: 7.97388e-15	AbsError: 8.52289e-13
+{
+  "distance_cm": 0.125,
+  "radius_cm": 0.05,
+  "fit_radius_cm": 0.035,
+  "fit_rmse_V": 0.01977114730506376,
+  "potential_hessian": [
+    [
+      50941.74819736572,
+      7.051547970225175
+    ],
+    [
+      7.051547970225175,
+      -50937.27241118798
+    ]
+  ],
+  "potential_hessian_eigenvalues": [
+    -50937.272899260286,
+    50941.748685438026
+  ],
+  "laplace_trace_relative": 8.786086644527026e-05,
+  "quadrupole_strength_V_per_unit2": 50939.51079234916,
+  "quadrupole_efficiency": 0.9551158273565468,
+  "secular_frequencies_Hz": [
+    2157316.9828253137,
+    2157506.5432195626
+  ]
+}
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 1 (Line)
+Info    : [ 10%] Meshing curve 2 (Line)
+Info    : [ 20%] Meshing curve 3 (Line)
+Info    : [ 20%] Meshing curve 4 (Line)
+Info    : [ 30%] Meshing curve 5 (Circle)
+Info    : [ 30%] Meshing curve 6 (Circle)
+Info    : [ 40%] Meshing curve 7 (Circle)
+Info    : [ 40%] Meshing curve 8 (Circle)
+Info    : [ 50%] Meshing curve 9 (Circle)
+Info    : [ 50%] Meshing curve 10 (Circle)
+Info    : [ 60%] Meshing curve 11 (Circle)
+Info    : [ 60%] Meshing curve 12 (Circle)
+Info    : [ 70%] Meshing curve 13 (Circle)
+Info    : [ 70%] Meshing curve 14 (Circle)
+Info    : [ 80%] Meshing curve 15 (Circle)
+Info    : [ 80%] Meshing curve 16 (Circle)
+Info    : [ 90%] Meshing curve 17 (Circle)
+Info    : [ 90%] Meshing curve 18 (Circle)
+Info    : [100%] Meshing curve 19 (Circle)
+Info    : [100%] Meshing curve 20 (Circle)
+Info    : Done meshing 1D (Wall 0.00150929s, CPU 0.001408s)
+Info    : Meshing 2D...
+Info    : [  0%] Meshing surface 1 (Plane, Frontal-Delaunay)
+Info    : [ 30%] Meshing surface 2 (Plane, Frontal-Delaunay)
+Info    : [ 50%] Meshing surface 3 (Plane, Frontal-Delaunay)
+Info    : [ 70%] Meshing surface 4 (Plane, Frontal-Delaunay)
+Info    : [ 90%] Meshing surface 5 (Plane, Frontal-Delaunay)
+Info    : Done meshing 2D (Wall 0.21764s, CPU 0.215314s)
+Info    : 17917 nodes 36168 elements
+Info    : Writing '/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/devsim_cache/solve_0.120000/mesh.msh'...
+Info    : Done writing '/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/devsim_cache/solve_0.120000/mesh.msh'
+Searching DEVSIM_MATH_LIBS="libopenblas.dylib:liblapack.dylib:libblas.dylib"
+Loading "libopenblas.dylib": MISSING DLL
+Loading "liblapack.dylib": ALL BLAS/LAPACK LOADED
+Skipping libblas.dylib
+loading UMFPACK 5.1 as direct solver
+Physical group name East has 0 Tetrahedra.
+Physical group name East has 1210 Triangles.
+Physical group name East has 1855 Lines.
+Physical group name East has 646 Points.
+Physical group name East_contact has 0 Tetrahedra.
+Physical group name East_contact has 0 Triangles.
+Physical group name East_contact has 80 Lines.
+Physical group name East_contact has 80 Points.
+Physical group name North has 0 Tetrahedra.
+Physical group name North has 1208 Triangles.
+Physical group name North has 1852 Lines.
+Physical group name North has 645 Points.
+Physical group name North_contact has 0 Tetrahedra.
+Physical group name North_contact has 0 Triangles.
+Physical group name North_contact has 80 Lines.
+Physical group name North_contact has 80 Points.
+Physical group name South has 0 Tetrahedra.
+Physical group name South has 1208 Triangles.
+Physical group name South has 1852 Lines.
+Physical group name South has 645 Points.
+Physical group name South_contact has 0 Tetrahedra.
+Physical group name South_contact has 0 Triangles.
+Physical group name South_contact has 80 Lines.
+Physical group name South_contact has 80 Points.
+Physical group name West has 0 Tetrahedra.
+Physical group name West has 1208 Triangles.
+Physical group name West has 1852 Lines.
+Physical group name West has 645 Points.
+Physical group name West_contact has 0 Tetrahedra.
+Physical group name West_contact has 0 Triangles.
+Physical group name West_contact has 80 Lines.
+Physical group name West_contact has 80 Points.
+Physical group name air has 0 Tetrahedra.
+Physical group name air has 30764 Triangles.
+Physical group name air has 46419 Lines.
+Physical group name air has 15652 Points.
+Physical group name world_boundary has 0 Tetrahedra.
+Physical group name world_boundary has 0 Triangles.
+Physical group name world_boundary has 226 Lines.
+Physical group name world_boundary has 226 Points.
+Device paul_trap has 17913 coordinates with max index 17913
+Region East has 646 nodes.
+Region North has 645 nodes.
+Region South has 645 nodes.
+Region West has 645 nodes.
+Region air has 15652 nodes.
+Contact East_contact in region air with 80 nodes
+Contact North_contact in region air with 80 nodes
+Contact South_contact in region air with 80 nodes
+Contact West_contact in region air with 80 nodes
+Contact world_boundary_contact in region air with 226 nodes
+number of equations 15652
+Iteration: 0
+  Device: "paul_trap"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+    Region: "air"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+      Equation: "PotentialEquation"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+Iteration: 1
+  Device: "paul_trap"	RelError: 4.18764e-15	AbsError: 4.66834e-13
+    Region: "air"	RelError: 4.18764e-15	AbsError: 4.66834e-13
+      Equation: "PotentialEquation"	RelError: 4.18764e-15	AbsError: 4.66834e-13
+{
+  "distance_cm": 0.12,
+  "radius_cm": 0.05,
+  "fit_radius_cm": 0.035,
+  "fit_rmse_V": 0.02491481112462528,
+  "potential_hessian": [
+    [
+      58909.97718968651,
+      -27.66413028690523
+    ],
+    [
+      -27.66413028690523,
+      -58905.88165507147
+    ]
+  ],
+  "potential_hessian_eigenvalues": [
+    -58905.888150835875,
+    58909.98368545092
+  ],
+  "laplace_trace_relative": 6.952191052898724e-05,
+  "quadrupole_strength_V_per_unit2": 58907.9359181434,
+  "quadrupole_efficiency": 0.9621629533296753,
+  "secular_frequencies_Hz": [
+    2494807.155214862,
+    2494980.611033674
+  ]
+}
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 1 (Line)
+Info    : [ 10%] Meshing curve 2 (Line)
+Info    : [ 20%] Meshing curve 3 (Line)
+Info    : [ 20%] Meshing curve 4 (Line)
+Info    : [ 30%] Meshing curve 5 (Circle)
+Info    : [ 30%] Meshing curve 6 (Circle)
+Info    : [ 40%] Meshing curve 7 (Circle)
+Info    : [ 40%] Meshing curve 8 (Circle)
+Info    : [ 50%] Meshing curve 9 (Circle)
+Info    : [ 50%] Meshing curve 10 (Circle)
+Info    : [ 60%] Meshing curve 11 (Circle)
+Info    : [ 60%] Meshing curve 12 (Circle)
+Info    : [ 70%] Meshing curve 13 (Circle)
+Info    : [ 70%] Meshing curve 14 (Circle)
+Info    : [ 80%] Meshing curve 15 (Circle)
+Info    : [ 80%] Meshing curve 16 (Circle)
+Info    : [ 90%] Meshing curve 17 (Circle)
+Info    : [ 90%] Meshing curve 18 (Circle)
+Info    : [100%] Meshing curve 19 (Circle)
+Info    : [100%] Meshing curve 20 (Circle)
+Info    : Done meshing 1D (Wall 0.000693125s, CPU 0.000641s)
+Info    : Meshing 2D...
+Info    : [  0%] Meshing surface 1 (Plane, Frontal-Delaunay)
+Info    : [ 30%] Meshing surface 2 (Plane, Frontal-Delaunay)
+Info    : [ 50%] Meshing surface 3 (Plane, Frontal-Delaunay)
+Info    : [ 70%] Meshing surface 4 (Plane, Frontal-Delaunay)
+Info    : [ 90%] Meshing surface 5 (Plane, Frontal-Delaunay)
+Info    : Done meshing 2D (Wall 0.204522s, CPU 0.202267s)
+Info    : 18093 nodes 36520 elements
+Info    : Writing '/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/devsim_cache/solve_0.122500/mesh.msh'...
+Info    : Done writing '/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/devsim_cache/solve_0.122500/mesh.msh'
+Searching DEVSIM_MATH_LIBS="libopenblas.dylib:liblapack.dylib:libblas.dylib"
+Loading "libopenblas.dylib": MISSING DLL
+Loading "liblapack.dylib": ALL BLAS/LAPACK LOADED
+Skipping libblas.dylib
+loading UMFPACK 5.1 as direct solver
+Physical group name East has 0 Tetrahedra.
+Physical group name East has 1208 Triangles.
+Physical group name East has 1852 Lines.
+Physical group name East has 645 Points.
+Physical group name East_contact has 0 Tetrahedra.
+Physical group name East_contact has 0 Triangles.
+Physical group name East_contact has 80 Lines.
+Physical group name East_contact has 80 Points.
+Physical group name North has 0 Tetrahedra.
+Physical group name North has 1208 Triangles.
+Physical group name North has 1852 Lines.
+Physical group name North has 645 Points.
+Physical group name North_contact has 0 Tetrahedra.
+Physical group name North_contact has 0 Triangles.
+Physical group name North_contact has 80 Lines.
+Physical group name North_contact has 80 Points.
+Physical group name South has 0 Tetrahedra.
+Physical group name South has 1208 Triangles.
+Physical group name South has 1852 Lines.
+Physical group name South has 645 Points.
+Physical group name South_contact has 0 Tetrahedra.
+Physical group name South_contact has 0 Triangles.
+Physical group name South_contact has 80 Lines.
+Physical group name South_contact has 80 Points.
+Physical group name West has 0 Tetrahedra.
+Physical group name West has 1208 Triangles.
+Physical group name West has 1852 Lines.
+Physical group name West has 645 Points.
+Physical group name West_contact has 0 Tetrahedra.
+Physical group name West_contact has 0 Triangles.
+Physical group name West_contact has 80 Lines.
+Physical group name West_contact has 80 Points.
+Physical group name air has 0 Tetrahedra.
+Physical group name air has 31118 Triangles.
+Physical group name air has 46950 Lines.
+Physical group name air has 15829 Points.
+Physical group name world_boundary has 0 Tetrahedra.
+Physical group name world_boundary has 0 Triangles.
+Physical group name world_boundary has 226 Lines.
+Physical group name world_boundary has 226 Points.
+Device paul_trap has 18089 coordinates with max index 18089
+Region East has 645 nodes.
+Region North has 645 nodes.
+Region South has 645 nodes.
+Region West has 645 nodes.
+Region air has 15829 nodes.
+Contact East_contact in region air with 80 nodes
+Contact North_contact in region air with 80 nodes
+Contact South_contact in region air with 80 nodes
+Contact West_contact in region air with 80 nodes
+Contact world_boundary_contact in region air with 226 nodes
+number of equations 15829
+Iteration: 0
+  Device: "paul_trap"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+    Region: "air"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+      Equation: "PotentialEquation"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+Iteration: 1
+  Device: "paul_trap"	RelError: 5.80038e-15	AbsError: 8.04384e-13
+    Region: "air"	RelError: 5.80038e-15	AbsError: 8.04384e-13
+      Equation: "PotentialEquation"	RelError: 5.80038e-15	AbsError: 8.04384e-13
+{
+  "distance_cm": 0.1225,
+  "radius_cm": 0.05,
+  "fit_radius_cm": 0.035,
+  "fit_rmse_V": 0.022229706372394922,
+  "potential_hessian": [
+    [
+      54711.741164241954,
+      -0.2973640253598576
+    ],
+    [
+      -0.2973640253598576,
+      -54712.513082144906
+    ]
+  ],
+  "potential_hessian_eigenvalues": [
+    -54712.513082953,
+    54711.74116505005
+  ],
+  "laplace_trace_relative": 1.4108617196608665e-05,
+  "quadrupole_strength_V_per_unit2": 54712.12712400153,
+  "quadrupole_efficiency": 0.9586020606517768,
+  "secular_frequencies_Hz": [
+    2317174.8634587647,
+    2317207.5560531383
+  ]
+}
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 1 (Line)
+Info    : [ 10%] Meshing curve 2 (Line)
+Info    : [ 20%] Meshing curve 3 (Line)
+Info    : [ 20%] Meshing curve 4 (Line)
+Info    : [ 30%] Meshing curve 5 (Circle)
+Info    : [ 30%] Meshing curve 6 (Circle)
+Info    : [ 40%] Meshing curve 7 (Circle)
+Info    : [ 40%] Meshing curve 8 (Circle)
+Info    : [ 50%] Meshing curve 9 (Circle)
+Info    : [ 50%] Meshing curve 10 (Circle)
+Info    : [ 60%] Meshing curve 11 (Circle)
+Info    : [ 60%] Meshing curve 12 (Circle)
+Info    : [ 70%] Meshing curve 13 (Circle)
+Info    : [ 70%] Meshing curve 14 (Circle)
+Info    : [ 80%] Meshing curve 15 (Circle)
+Info    : [ 80%] Meshing curve 16 (Circle)
+Info    : [ 90%] Meshing curve 17 (Circle)
+Info    : [ 90%] Meshing curve 18 (Circle)
+Info    : [100%] Meshing curve 19 (Circle)
+Info    : [100%] Meshing curve 20 (Circle)
+Info    : Done meshing 1D (Wall 0.000753083s, CPU 0.000673s)
+Info    : Meshing 2D...
+Info    : [  0%] Meshing surface 1 (Plane, Frontal-Delaunay)
+Info    : [ 30%] Meshing surface 2 (Plane, Frontal-Delaunay)
+Info    : [ 50%] Meshing surface 3 (Plane, Frontal-Delaunay)
+Info    : [ 70%] Meshing surface 4 (Plane, Frontal-Delaunay)
+Info    : [ 90%] Meshing surface 5 (Plane, Frontal-Delaunay)
+Info    : Done meshing 2D (Wall 0.217367s, CPU 0.214596s)
+Info    : 18375 nodes 37084 elements
+Info    : Writing '/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/devsim_cache/solve_0.127500/mesh.msh'...
+Info    : Done writing '/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/devsim_cache/solve_0.127500/mesh.msh'
+Searching DEVSIM_MATH_LIBS="libopenblas.dylib:liblapack.dylib:libblas.dylib"
+Loading "libopenblas.dylib": MISSING DLL
+Loading "liblapack.dylib": ALL BLAS/LAPACK LOADED
+Skipping libblas.dylib
+loading UMFPACK 5.1 as direct solver
+Physical group name East has 0 Tetrahedra.
+Physical group name East has 1210 Triangles.
+Physical group name East has 1855 Lines.
+Physical group name East has 646 Points.
+Physical group name East_contact has 0 Tetrahedra.
+Physical group name East_contact has 0 Triangles.
+Physical group name East_contact has 80 Lines.
+Physical group name East_contact has 80 Points.
+Physical group name North has 0 Tetrahedra.
+Physical group name North has 1210 Triangles.
+Physical group name North has 1855 Lines.
+Physical group name North has 646 Points.
+Physical group name North_contact has 0 Tetrahedra.
+Physical group name North_contact has 0 Triangles.
+Physical group name North_contact has 80 Lines.
+Physical group name North_contact has 80 Points.
+Physical group name South has 0 Tetrahedra.
+Physical group name South has 1210 Triangles.
+Physical group name South has 1855 Lines.
+Physical group name South has 646 Points.
+Physical group name South_contact has 0 Tetrahedra.
+Physical group name South_contact has 0 Triangles.
+Physical group name South_contact has 80 Lines.
+Physical group name South_contact has 80 Points.
+Physical group name West has 0 Tetrahedra.
+Physical group name West has 1210 Triangles.
+Physical group name West has 1855 Lines.
+Physical group name West has 646 Points.
+Physical group name West_contact has 0 Tetrahedra.
+Physical group name West_contact has 0 Triangles.
+Physical group name West_contact has 80 Lines.
+Physical group name West_contact has 80 Points.
+Physical group name air has 0 Tetrahedra.
+Physical group name air has 31674 Triangles.
+Physical group name air has 47784 Lines.
+Physical group name air has 16107 Points.
+Physical group name world_boundary has 0 Tetrahedra.
+Physical group name world_boundary has 0 Triangles.
+Physical group name world_boundary has 226 Lines.
+Physical group name world_boundary has 226 Points.
+Device paul_trap has 18371 coordinates with max index 18371
+Region East has 646 nodes.
+Region North has 646 nodes.
+Region South has 646 nodes.
+Region West has 646 nodes.
+Region air has 16107 nodes.
+Contact East_contact in region air with 80 nodes
+Contact North_contact in region air with 80 nodes
+Contact South_contact in region air with 80 nodes
+Contact West_contact in region air with 80 nodes
+Contact world_boundary_contact in region air with 226 nodes
+number of equations 16107
+Iteration: 0
+  Device: "paul_trap"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+    Region: "air"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+      Equation: "PotentialEquation"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+Iteration: 1
+  Device: "paul_trap"	RelError: 8.75318e-15	AbsError: 6.85646e-13
+    Region: "air"	RelError: 8.75318e-15	AbsError: 6.85646e-13
+      Equation: "PotentialEquation"	RelError: 8.75318e-15	AbsError: 6.85646e-13
+{
+  "distance_cm": 0.1275,
+  "radius_cm": 0.05,
+  "fit_radius_cm": 0.035,
+  "fit_rmse_V": 0.017603174320723107,
+  "potential_hessian": [
+    [
+      47528.54626580369,
+      -5.060209995143615
+    ],
+    [
+      -5.060209995143615,
+      -47524.42683412479
+    ]
+  ],
+  "potential_hessian_eigenvalues": [
+    -47524.427103508526,
+    47528.54653518743
+  ],
+  "laplace_trace_relative": 8.667278886499144e-05,
+  "quadrupole_strength_V_per_unit2": 47526.48681934798,
+  "quadrupole_efficiency": 0.9515198715290294,
+  "secular_frequencies_Hz": [
+    2012774.6903963415,
+    2012949.158313736
+  ]
+}
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 1 (Line)
+Info    : [ 10%] Meshing curve 2 (Line)
+Info    : [ 20%] Meshing curve 3 (Line)
+Info    : [ 20%] Meshing curve 4 (Line)
+Info    : [ 30%] Meshing curve 5 (Circle)
+Info    : [ 30%] Meshing curve 6 (Circle)
+Info    : [ 40%] Meshing curve 7 (Circle)
+Info    : [ 40%] Meshing curve 8 (Circle)
+Info    : [ 50%] Meshing curve 9 (Circle)
+Info    : [ 50%] Meshing curve 10 (Circle)
+Info    : [ 60%] Meshing curve 11 (Circle)
+Info    : [ 60%] Meshing curve 12 (Circle)
+Info    : [ 70%] Meshing curve 13 (Circle)
+Info    : [ 70%] Meshing curve 14 (Circle)
+Info    : [ 80%] Meshing curve 15 (Circle)
+Info    : [ 80%] Meshing curve 16 (Circle)
+Info    : [ 90%] Meshing curve 17 (Circle)
+Info    : [ 90%] Meshing curve 18 (Circle)
+Info    : [100%] Meshing curve 19 (Circle)
+Info    : [100%] Meshing curve 20 (Circle)
+Info    : Done meshing 1D (Wall 0.00206963s, CPU 0.001279s)
+Info    : Meshing 2D...
+Info    : [  0%] Meshing surface 1 (Plane, Frontal-Delaunay)
+Info    : [ 30%] Meshing surface 2 (Plane, Frontal-Delaunay)
+Info    : [ 50%] Meshing surface 3 (Plane, Frontal-Delaunay)
+Info    : [ 70%] Meshing surface 4 (Plane, Frontal-Delaunay)
+Info    : [ 90%] Meshing surface 5 (Plane, Frontal-Delaunay)
+Info    : Done meshing 2D (Wall 0.552006s, CPU 0.361973s)
+Info    : 18580 nodes 37494 elements
+Info    : Writing '/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/devsim_cache/solve_0.130000/mesh.msh'...
+Info    : Done writing '/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/devsim_cache/solve_0.130000/mesh.msh'
+Searching DEVSIM_MATH_LIBS="libopenblas.dylib:liblapack.dylib:libblas.dylib"
+Loading "libopenblas.dylib": MISSING DLL
+Loading "liblapack.dylib": ALL BLAS/LAPACK LOADED
+Skipping libblas.dylib
+loading UMFPACK 5.1 as direct solver
+Physical group name East has 0 Tetrahedra.
+Physical group name East has 1210 Triangles.
+Physical group name East has 1855 Lines.
+Physical group name East has 646 Points.
+Physical group name East_contact has 0 Tetrahedra.
+Physical group name East_contact has 0 Triangles.
+Physical group name East_contact has 80 Lines.
+Physical group name East_contact has 80 Points.
+Physical group name North has 0 Tetrahedra.
+Physical group name North has 1210 Triangles.
+Physical group name North has 1855 Lines.
+Physical group name North has 646 Points.
+Physical group name North_contact has 0 Tetrahedra.
+Physical group name North_contact has 0 Triangles.
+Physical group name North_contact has 80 Lines.
+Physical group name North_contact has 80 Points.
+Physical group name South has 0 Tetrahedra.
+Physical group name South has 1210 Triangles.
+Physical group name South has 1855 Lines.
+Physical group name South has 646 Points.
+Physical group name South_contact has 0 Tetrahedra.
+Physical group name South_contact has 0 Triangles.
+Physical group name South_contact has 80 Lines.
+Physical group name South_contact has 80 Points.
+Physical group name West has 0 Tetrahedra.
+Physical group name West has 1210 Triangles.
+Physical group name West has 1855 Lines.
+Physical group name West has 646 Points.
+Physical group name West_contact has 0 Tetrahedra.
+Physical group name West_contact has 0 Triangles.
+Physical group name West_contact has 80 Lines.
+Physical group name West_contact has 80 Points.
+Physical group name air has 0 Tetrahedra.
+Physical group name air has 32084 Triangles.
+Physical group name air has 48399 Lines.
+Physical group name air has 16312 Points.
+Physical group name world_boundary has 0 Tetrahedra.
+Physical group name world_boundary has 0 Triangles.
+Physical group name world_boundary has 226 Lines.
+Physical group name world_boundary has 226 Points.
+Device paul_trap has 18576 coordinates with max index 18576
+Region East has 646 nodes.
+Region North has 646 nodes.
+Region South has 646 nodes.
+Region West has 646 nodes.
+Region air has 16312 nodes.
+Contact East_contact in region air with 80 nodes
+Contact North_contact in region air with 80 nodes
+Contact South_contact in region air with 80 nodes
+Contact West_contact in region air with 80 nodes
+Contact world_boundary_contact in region air with 226 nodes
+number of equations 16312
+Iteration: 0
+  Device: "paul_trap"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+    Region: "air"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+      Equation: "PotentialEquation"	RelError: 1.00000e+00	AbsError: 3.00000e+02
+Iteration: 1
+  Device: "paul_trap"	RelError: 6.58642e-15	AbsError: 5.47368e-13
+    Region: "air"	RelError: 6.58642e-15	AbsError: 5.47368e-13
+      Equation: "PotentialEquation"	RelError: 6.58642e-15	AbsError: 5.47368e-13
+{
+  "distance_cm": 0.13,
+  "radius_cm": 0.05,
+  "fit_radius_cm": 0.035,
+  "fit_rmse_V": 0.016754788450053754,
+  "potential_hessian": [
+    [
+      44470.24038804318,
+      -15.319752432630708
+    ],
+    [
+      -15.319752432630708,
+      -44469.67525548255
+    ]
+  ],
+  "potential_hessian_eigenvalues": [
+    -44469.67789428433,
+    44470.24302684496
+  ],
+  "laplace_trace_relative": 1.2708105964010513e-05,
+  "quadrupole_strength_V_per_unit2": 44469.960460564645,
+  "quadrupole_efficiency": 0.9486924898253791,
+  "secular_frequencies_Hz": [
+    1883398.6564581909,
+    1883422.5911920546
+  ]
+}
+loading UMFPACK 5.1 as direct solver
+[benchmark]   devsim_fem: ok
+[benchmark] running coordinate_projection_pinn_seed0 ...
+     0 total=5.637e+02 pde=1.722e-05 bc=5.637e-01 det_min=0.492
+   100 total=2.420e+02 pde=8.101e-04 bc=2.420e-01 det_min=0.475
+   200 total=3.596e+01 pde=9.199e-01 bc=3.504e-02 det_min=0.514
+   300 total=2.579e+01 pde=1.484e+00 bc=2.431e-02 det_min=0.389
+   400 total=1.102e+01 pde=2.188e+00 bc=8.833e-03 det_min=0.432
+   500 total=1.457e+01 pde=6.842e+00 bc=7.726e-03 det_min=0.492
+   600 total=6.846e+00 pde=2.715e+00 bc=4.131e-03 det_min=0.392
+   700 total=5.603e+00 pde=2.768e+00 bc=2.835e-03 det_min=0.500
+   800 total=5.856e+00 pde=2.298e+00 bc=3.558e-03 det_min=0.460
+   900 total=4.628e+00 pde=2.173e+00 bc=2.455e-03 det_min=0.532
+  1000 total=4.258e+00 pde=1.907e+00 bc=2.351e-03 det_min=0.393
+  1100 total=2.043e+00 pde=1.208e+00 bc=8.354e-04 det_min=0.472
+  1200 total=9.021e-01 pde=4.401e-01 bc=4.621e-04 det_min=0.465
+  1300 total=1.019e+00 pde=4.455e-01 bc=5.732e-04 det_min=0.462
+  1400 total=6.913e-01 pde=3.144e-01 bc=3.769e-04 det_min=0.444
+  1500 total=8.000e-01 pde=5.120e-01 bc=2.880e-04 det_min=0.493
+  1600 total=9.764e-01 pde=3.780e-01 bc=5.984e-04 det_min=0.410
+  1700 total=1.457e+00 pde=3.274e-01 bc=1.129e-03 det_min=0.454
+  1800 total=2.799e+00 pde=5.090e-01 bc=2.289e-03 det_min=0.470
+  1900 total=1.304e+00 pde=4.553e-01 bc=8.490e-04 det_min=0.455
+  2000 total=6.630e-01 pde=3.257e-01 bc=3.372e-04 det_min=0.391
+  2100 total=1.186e+00 pde=7.286e-01 bc=4.578e-04 det_min=0.393
+  2200 total=6.610e-01 pde=5.233e-01 bc=1.377e-04 det_min=0.416
+  2300 total=6.640e-01 pde=3.020e-01 bc=3.620e-04 det_min=0.418
+  2400 total=4.079e-01 pde=1.903e-01 bc=2.176e-04 det_min=0.461
+  2500 total=4.213e-01 pde=2.157e-01 bc=2.056e-04 det_min=0.511
+  2600 total=3.670e-01 pde=1.858e-01 bc=1.813e-04 det_min=0.458
+  2700 total=3.505e-01 pde=1.349e-01 bc=2.156e-04 det_min=0.395
+  2800 total=3.429e-01 pde=2.233e-01 bc=1.195e-04 det_min=0.487
+  2900 total=4.097e-01 pde=2.094e-01 bc=2.003e-04 det_min=0.458
+  3000 total=3.720e-01 pde=1.200e-01 bc=2.520e-04 det_min=0.406
+  3100 total=3.114e-01 pde=1.390e-01 bc=1.724e-04 det_min=0.440
+  3200 total=3.304e-01 pde=2.150e-01 bc=1.154e-04 det_min=0.476
+  3300 total=2.741e-01 pde=1.295e-01 bc=1.446e-04 det_min=0.514
+  3400 total=4.774e-01 pde=2.185e-01 bc=2.588e-04 det_min=0.454
+  3500 total=2.650e-01 pde=9.027e-02 bc=1.747e-04 det_min=0.398
+  3600 total=7.012e-01 pde=8.279e-02 bc=6.184e-04 det_min=0.445
+  3700 total=8.297e-01 pde=1.369e-01 bc=6.928e-04 det_min=0.413
+  3800 total=7.783e-01 pde=2.380e-01 bc=5.402e-04 det_min=0.476
+  3900 total=6.392e-01 pde=2.666e-01 bc=3.726e-04 det_min=0.459
+  4000 total=1.080e+00 pde=1.765e-01 bc=9.035e-04 det_min=0.415
+  4100 total=3.801e-01 pde=2.758e-01 bc=1.043e-04 det_min=0.401
+  4200 total=2.881e-01 pde=1.821e-01 bc=1.059e-04 det_min=0.387
+  4300 total=2.998e-01 pde=1.708e-01 bc=1.291e-04 det_min=0.423
+  4400 total=2.627e-01 pde=1.247e-01 bc=1.380e-04 det_min=0.441
+  4500 total=3.512e-01 pde=1.830e-01 bc=1.682e-04 det_min=0.474
+  4600 total=3.075e-01 pde=1.335e-01 bc=1.740e-04 det_min=0.433
+  4700 total=4.044e-01 pde=1.989e-01 bc=2.055e-04 det_min=0.446
+  4800 total=2.478e-01 pde=1.455e-01 bc=1.023e-04 det_min=0.427
+  4900 total=3.597e-01 pde=1.299e-01 bc=2.299e-04 det_min=0.422
+  5000 total=3.133e-01 pde=1.456e-01 bc=1.677e-04 det_min=0.384
+  5100 total=4.103e-01 pde=2.460e-01 bc=1.643e-04 det_min=0.490
+  5200 total=2.378e-01 pde=7.462e-02 bc=1.632e-04 det_min=0.390
+  5300 total=3.050e-01 pde=1.346e-01 bc=1.703e-04 det_min=0.448
+  5400 total=4.265e-01 pde=9.742e-02 bc=3.291e-04 det_min=0.474
+  5500 total=5.444e-01 pde=3.905e-01 bc=1.538e-04 det_min=0.381
+  5600 total=2.280e+00 pde=1.061e-01 bc=2.174e-03 det_min=0.506
+  5700 total=3.433e-01 pde=1.355e-01 bc=2.078e-04 det_min=0.469
+  5800 total=2.771e-01 pde=1.512e-01 bc=1.259e-04 det_min=0.451
+  5900 total=1.954e-01 pde=7.261e-02 bc=1.228e-04 det_min=0.443
+  5999 total=2.276e-01 pde=1.472e-01 bc=8.049e-05 det_min=0.445
+[benchmark]   coordinate_projection_pinn_seed0: ok
+[benchmark] running coordinate_projection_pinn_seed1 ...
+     0 total=4.812e+02 pde=2.364e-07 bc=4.812e-01 det_min=0.424
+   100 total=2.191e+02 pde=3.586e-03 bc=2.191e-01 det_min=0.421
+   200 total=3.236e+01 pde=8.902e-01 bc=3.147e-02 det_min=0.420
+   300 total=2.259e+01 pde=2.436e+00 bc=2.015e-02 det_min=0.441
+   400 total=1.481e+01 pde=2.369e+00 bc=1.244e-02 det_min=0.402
+   500 total=1.091e+01 pde=4.061e+00 bc=6.848e-03 det_min=0.501
+   600 total=7.613e+00 pde=3.212e+00 bc=4.401e-03 det_min=0.466
+   700 total=7.431e+00 pde=2.631e+00 bc=4.800e-03 det_min=0.370
+   800 total=1.085e+01 pde=4.479e+00 bc=6.372e-03 det_min=0.435
+   900 total=9.324e+00 pde=4.343e+00 bc=4.981e-03 det_min=0.488
+  1000 total=9.236e+00 pde=3.404e+00 bc=5.833e-03 det_min=0.408
+  1100 total=4.075e+00 pde=2.268e+00 bc=1.807e-03 det_min=0.504
+  1200 total=2.947e+00 pde=8.954e-01 bc=2.052e-03 det_min=0.403
+  1300 total=3.891e+00 pde=2.273e+00 bc=1.618e-03 det_min=0.469
+  1400 total=2.937e+00 pde=1.965e+00 bc=9.726e-04 det_min=0.478
+  1500 total=1.051e+00 pde=6.547e-01 bc=3.959e-04 det_min=0.392
+  1600 total=8.325e-01 pde=5.080e-01 bc=3.245e-04 det_min=0.464
+  1700 total=6.036e-01 pde=3.285e-01 bc=2.751e-04 det_min=0.390
+  1800 total=4.875e-01 pde=2.731e-01 bc=2.144e-04 det_min=0.471
+  1900 total=1.990e+00 pde=2.708e-01 bc=1.719e-03 det_min=0.453
+  2000 total=6.177e-01 pde=2.957e-01 bc=3.220e-04 det_min=0.439
+  2100 total=4.165e-01 pde=1.544e-01 bc=2.621e-04 det_min=0.524
+  2200 total=4.952e-01 pde=3.192e-01 bc=1.760e-04 det_min=0.462
+  2300 total=4.001e-01 pde=2.395e-01 bc=1.605e-04 det_min=0.440
+  2400 total=3.301e-01 pde=1.549e-01 bc=1.752e-04 det_min=0.462
+  2500 total=3.407e-01 pde=1.864e-01 bc=1.542e-04 det_min=0.408
+  2600 total=4.978e-01 pde=3.314e-01 bc=1.663e-04 det_min=0.383
+  2700 total=3.517e-01 pde=2.144e-01 bc=1.373e-04 det_min=0.455
+  2800 total=5.003e-01 pde=2.108e-01 bc=2.895e-04 det_min=0.450
+  2900 total=8.613e-01 pde=2.126e-01 bc=6.487e-04 det_min=0.449
+  3000 total=7.730e-01 pde=7.650e-02 bc=6.965e-04 det_min=0.453
+  3100 total=8.311e-01 pde=1.372e-01 bc=6.938e-04 det_min=0.555
+  3200 total=4.462e-01 pde=3.065e-01 bc=1.397e-04 det_min=0.408
+  3300 total=2.776e-01 pde=1.690e-01 bc=1.085e-04 det_min=0.436
+  3400 total=2.622e-01 pde=1.102e-01 bc=1.521e-04 det_min=0.455
+  3500 total=2.446e-01 pde=1.012e-01 bc=1.434e-04 det_min=0.441
+  3600 total=2.733e-01 pde=1.326e-01 bc=1.407e-04 det_min=0.411
+  3700 total=3.290e-01 pde=1.512e-01 bc=1.778e-04 det_min=0.416
+  3800 total=1.685e+00 pde=1.514e-01 bc=1.534e-03 det_min=0.409
+  3900 total=2.735e-01 pde=1.248e-01 bc=1.488e-04 det_min=0.435
+  4000 total=2.763e-01 pde=1.110e-01 bc=1.653e-04 det_min=0.491
+  4100 total=3.580e-01 pde=1.750e-01 bc=1.830e-04 det_min=0.423
+  4200 total=2.448e-01 pde=9.106e-02 bc=1.537e-04 det_min=0.565
+  4300 total=2.402e-01 pde=9.348e-02 bc=1.468e-04 det_min=0.445
+  4400 total=3.148e-01 pde=9.473e-02 bc=2.201e-04 det_min=0.413
+  4500 total=3.512e-01 pde=2.195e-01 bc=1.317e-04 det_min=0.422
+  4600 total=1.080e+00 pde=1.503e-01 bc=9.299e-04 det_min=0.469
+  4700 total=4.752e-01 pde=1.959e-01 bc=2.793e-04 det_min=0.390
+  4800 total=2.595e-01 pde=1.420e-01 bc=1.175e-04 det_min=0.447
+  4900 total=4.102e-01 pde=2.390e-01 bc=1.713e-04 det_min=0.402
+  5000 total=2.016e-01 pde=5.989e-02 bc=1.417e-04 det_min=0.422
+  5100 total=3.080e-01 pde=1.873e-01 bc=1.207e-04 det_min=0.438
+  5200 total=4.000e-01 pde=2.161e-01 bc=1.839e-04 det_min=0.472
+  5300 total=3.579e-01 pde=1.310e-01 bc=2.270e-04 det_min=0.469
+  5400 total=2.764e-01 pde=1.244e-01 bc=1.520e-04 det_min=0.408
+  5500 total=4.513e-01 pde=2.864e-01 bc=1.649e-04 det_min=0.364
+  5600 total=4.109e-01 pde=2.626e-01 bc=1.484e-04 det_min=0.395
+  5700 total=2.684e-01 pde=1.317e-01 bc=1.368e-04 det_min=0.426
+  5800 total=2.509e-01 pde=1.508e-01 bc=1.001e-04 det_min=0.414
+  5900 total=2.454e-01 pde=1.192e-01 bc=1.263e-04 det_min=0.456
+  5999 total=3.550e-01 pde=1.039e-01 bc=2.511e-04 det_min=0.428
+[benchmark]   coordinate_projection_pinn_seed1: ok
+[benchmark] running coordinate_projection_pinn_seed2 ...
+     0 total=4.182e+02 pde=1.259e-06 bc=4.182e-01 det_min=0.406
+   100 total=2.502e+02 pde=4.635e-04 bc=2.502e-01 det_min=0.381
+   200 total=4.261e+01 pde=1.167e+00 bc=4.145e-02 det_min=0.468
+   300 total=2.777e+01 pde=1.553e+00 bc=2.622e-02 det_min=0.484
+   400 total=2.088e+01 pde=3.897e+00 bc=1.699e-02 det_min=0.414
+   500 total=1.477e+01 pde=2.883e+00 bc=1.189e-02 det_min=0.459
+   600 total=1.317e+01 pde=4.845e+00 bc=8.328e-03 det_min=0.413
+   700 total=8.883e+00 pde=3.438e+00 bc=5.445e-03 det_min=0.393
+   800 total=7.664e+00 pde=3.016e+00 bc=4.647e-03 det_min=0.414
+   900 total=4.259e+00 pde=2.305e+00 bc=1.954e-03 det_min=0.424
+  1000 total=2.848e+00 pde=1.911e+00 bc=9.372e-04 det_min=0.400
+  1100 total=2.888e+00 pde=1.365e+00 bc=1.524e-03 det_min=0.389
+  1200 total=2.004e+00 pde=4.568e-01 bc=1.548e-03 det_min=0.444
+  1300 total=6.234e-01 pde=2.057e-01 bc=4.177e-04 det_min=0.461
+  1400 total=5.424e-01 pde=2.342e-01 bc=3.082e-04 det_min=0.455
+  1500 total=6.646e-01 pde=3.346e-01 bc=3.300e-04 det_min=0.464
+  1600 total=5.611e-01 pde=2.506e-01 bc=3.105e-04 det_min=0.419
+  1700 total=7.085e-01 pde=3.260e-01 bc=3.825e-04 det_min=0.441
+  1800 total=4.026e+00 pde=2.560e-01 bc=3.770e-03 det_min=0.462
+  1900 total=6.627e-01 pde=2.438e-01 bc=4.189e-04 det_min=0.474
+  2000 total=4.780e-01 pde=2.578e-01 bc=2.202e-04 det_min=0.442
+  2100 total=8.319e-01 pde=6.688e-01 bc=1.632e-04 det_min=0.402
+  2200 total=4.059e-01 pde=1.608e-01 bc=2.451e-04 det_min=0.450
+  2300 total=4.960e-01 pde=2.357e-01 bc=2.603e-04 det_min=0.422
+  2400 total=4.390e-01 pde=2.345e-01 bc=2.045e-04 det_min=0.420
+  2500 total=3.518e-01 pde=1.559e-01 bc=1.958e-04 det_min=0.455
+  2600 total=2.535e+00 pde=4.513e-01 bc=2.084e-03 det_min=0.408
+  2700 total=6.129e-01 pde=2.275e-01 bc=3.853e-04 det_min=0.393
+  2800 total=5.970e-01 pde=3.704e-01 bc=2.266e-04 det_min=0.377
+  2900 total=5.269e-01 pde=2.805e-01 bc=2.464e-04 det_min=0.387
+  3000 total=5.700e-01 pde=2.728e-01 bc=2.972e-04 det_min=0.450
+  3100 total=4.175e-01 pde=3.007e-01 bc=1.168e-04 det_min=0.414
+  3200 total=1.063e+00 pde=1.781e-01 bc=8.853e-04 det_min=0.382
+  3300 total=5.582e-01 pde=1.722e-01 bc=3.860e-04 det_min=0.447
+  3400 total=3.296e-01 pde=1.488e-01 bc=1.808e-04 det_min=0.488
+  3500 total=5.368e-01 pde=2.441e-01 bc=2.927e-04 det_min=0.448
+  3600 total=2.725e-01 pde=1.301e-01 bc=1.424e-04 det_min=0.403
+  3700 total=4.308e-01 pde=2.471e-01 bc=1.838e-04 det_min=0.389
+  3800 total=2.845e-01 pde=1.164e-01 bc=1.681e-04 det_min=0.397
+  3900 total=2.617e-01 pde=8.912e-02 bc=1.726e-04 det_min=0.429
+  4000 total=3.559e-01 pde=1.954e-01 bc=1.604e-04 det_min=0.434
+  4100 total=3.292e-01 pde=1.598e-01 bc=1.694e-04 det_min=0.466
+  4200 total=1.186e+00 pde=1.091e-01 bc=1.077e-03 det_min=0.494
+  4300 total=9.730e-01 pde=1.441e-01 bc=8.289e-04 det_min=0.434
+  4400 total=3.187e-01 pde=1.220e-01 bc=1.967e-04 det_min=0.442
+  4500 total=2.633e-01 pde=1.253e-01 bc=1.380e-04 det_min=0.399
+  4600 total=3.612e-01 pde=1.973e-01 bc=1.640e-04 det_min=0.413
+  4700 total=2.964e-01 pde=1.156e-01 bc=1.808e-04 det_min=0.477
+  4800 total=2.844e-01 pde=7.839e-02 bc=2.060e-04 det_min=0.514
+  4900 total=5.372e-01 pde=3.647e-01 bc=1.725e-04 det_min=0.363
+  5000 total=2.197e-01 pde=7.089e-02 bc=1.488e-04 det_min=0.446
+  5100 total=2.442e-01 pde=8.344e-02 bc=1.608e-04 det_min=0.435
+  5200 total=3.534e-01 pde=5.899e-02 bc=2.944e-04 det_min=0.496
+  5300 total=5.291e-01 pde=2.609e-01 bc=2.683e-04 det_min=0.475
+  5400 total=3.432e-01 pde=1.634e-01 bc=1.798e-04 det_min=0.462
+  5500 total=8.094e-01 pde=5.439e-01 bc=2.655e-04 det_min=0.409
+  5600 total=2.219e-01 pde=8.143e-02 bc=1.405e-04 det_min=0.440
+  5700 total=8.480e-01 pde=2.993e-01 bc=5.487e-04 det_min=0.496
+  5800 total=4.074e-01 pde=2.674e-01 bc=1.399e-04 det_min=0.441
+  5900 total=3.080e-01 pde=1.077e-01 bc=2.003e-04 det_min=0.494
+  5999 total=1.176e+00 pde=1.461e-01 bc=1.030e-03 det_min=0.483
+[benchmark]   coordinate_projection_pinn_seed2: ok
+
+# Paul-Trap Design Benchmark: PINN vs. Classical FEM
+
+**Task:** maximize quadrupole efficiency at electrode distance `0.125` cm (interval `[0.11, 0.145]`).
+**Reference (ground truth):** `devsim_fem`.
+
+## Accuracy and cost
+
+| Method | Available | Objective J | d(log J)/dd | Grad rel. err vs ref | Sign agrees | Setup s | Eval s | Deterministic |
+|---|---|---|---|---|---|---|---|---|
+| `devsim_fem` (ref) | yes | 0.9551 | -1.507 | reference | reference | 0.0 | 9.64 | yes |
+| `coordinate_projection_pinn_seed0` | yes | 0.9957 | 19.67 | 1405.20% | NO | 146.2 | 0.00 | no |
+| `coordinate_projection_pinn_seed1` | yes | 1.162 | 16.33 | 1183.50% | NO | 146.9 | 0.00 | no |
+| `coordinate_projection_pinn_seed2` | yes | 1.066 | 24.87 | 1749.75% | NO | 144.1 | 0.00 | no |
+
+## Verdict
+
+- `coordinate_projection_pinn_seed0`: shape-gradient relative error 1405.20% vs FEM; sign DISAGREES; end-to-end cost 146.2s vs FEM 9.6s. => gradient NOT trustworthy, and not cheaper end-to-end.
+- `coordinate_projection_pinn_seed1`: shape-gradient relative error 1183.50% vs FEM; sign DISAGREES; end-to-end cost 147.0s vs FEM 9.6s. => gradient NOT trustworthy, and not cheaper end-to-end.
+- `coordinate_projection_pinn_seed2`: shape-gradient relative error 1749.75% vs FEM; sign DISAGREES; end-to-end cost 144.1s vs FEM 9.6s. => gradient NOT trustworthy, and not cheaper end-to-end.
+
+## Notes per method
+
+- `devsim_fem`: finite-element ground truth; five-point finite-difference gradient
+- `coordinate_projection_pinn_seed0`: trained PINN; autograd gradient through the residual coordinate map
+- `coordinate_projection_pinn_seed1`: trained PINN; autograd gradient through the residual coordinate map
+- `coordinate_projection_pinn_seed2`: trained PINN; autograd gradient through the residual coordinate map
+
+[benchmark] wrote /Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/scorecard.json
+[benchmark] wrote /Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/results/scorecard.md

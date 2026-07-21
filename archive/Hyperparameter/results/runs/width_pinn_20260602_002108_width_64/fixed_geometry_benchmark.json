@@ -1,0 +1,95 @@
+{
+  "run_dir": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/runs/width_pinn_20260602_002108_width_64",
+  "devsim_rf": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/DEVSIM/Circular_trap/paul_trap_basis_RF.dat",
+  "sample_count": 1000,
+  "potential_V": {
+    "rmse": 8.029650091549046,
+    "mae": 4.991466580879012,
+    "p95_abs": 19.093925773315426,
+    "max_abs": 39.29463577270508,
+    "relative_l2": 0.06822040741812194
+  },
+  "electric_field_V_per_cm": {
+    "rmse": 211.27809715315038,
+    "mae": 110.19467782807742,
+    "p95_abs": 528.1406862792968,
+    "max_abs": 1003.3358691406247,
+    "relative_l2": 0.17828853669484024
+  },
+  "pinn_center": {
+    "potential_hessian": [
+      [
+        40979.28515625,
+        -265.71392822265625
+      ],
+      [
+        -265.71392822265625,
+        -41690.609375
+      ]
+    ],
+    "potential_hessian_eigenvalues": [
+      -41691.46341216398,
+      40980.139193413976
+    ],
+    "laplace_trace_relative": 0.01706162750196153,
+    "quadrupole_strength_V_per_unit2": 41335.80130278898,
+    "quadrupole_efficiency": 0.7750462744272935,
+    "secular_frequencies_Hz": [
+      1735608.2335884357,
+      1765734.5385525674
+    ]
+  },
+  "devsim_center": {
+    "potential_hessian": [
+      [
+        50925.49706537045,
+        0.08799447133514882
+      ],
+      [
+        0.08799447133514882,
+        -50925.46429311977
+      ]
+    ],
+    "potential_hessian_eigenvalues": [
+      -50925.46429319579,
+      50925.49706544647
+    ],
+    "laplace_trace_relative": 6.435332509839833e-07,
+    "quadrupole_strength_V_per_unit2": 50925.48067932113,
+    "quadrupole_efficiency": 0.9548527627372712,
+    "secular_frequencies_Hz": [
+      2156816.8597335885,
+      2156818.247717847
+    ],
+    "quadratic_fit_rmse_V": 0.02059986648176777,
+    "quadratic_fit_points": 745
+  },
+  "pinn_escape": {
+    "barrier_eV": 11.167489092797041,
+    "saddle_value_eV": 11.170884132385254,
+    "start_value_eV": 0.003395039588212967,
+    "target_index": [
+      0,
+      114
+    ],
+    "grid_shape": [
+      193,
+      241
+    ]
+  },
+  "devsim_escape": {
+    "barrier_eV": 17.8696961080887,
+    "saddle_value_eV": 17.86969611039946,
+    "start_value_eV": 2.310758791614047e-09,
+    "target_index": [
+      101,
+      107
+    ],
+    "grid_shape": [
+      193,
+      241
+    ]
+  },
+  "center_efficiency_relative_error": 0.18830807777581063,
+  "secular_frequency_relative_l2": 0.18843753214321532
+}

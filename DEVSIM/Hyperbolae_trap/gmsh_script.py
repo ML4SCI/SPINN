@@ -58,7 +58,7 @@ def make_hyperbola_with_physical_name(
     surface, loop, surf_tag, interface_tag
     """
 
-    # Determine parameter range so that y spans [-half_height, +half_height]
+    # determine parameter range so that y spans [-half_height, +half_height]
     umax = math.asinh(half_height / b)
 
     point_tags = []
@@ -70,17 +70,17 @@ def make_hyperbola_with_physical_name(
         p = gmsh.model.geo.addPoint(xg, yg, 0, mesh_size)
         point_tags.append(p)
 
-    # Hyperbolic front face
+    # hyperbolic front face
     hyperbola_curve = gmsh.model.geo.addSpline(point_tags)
 
-    # Straight line closing the back
+    # straight line closing the back
     closing_line = gmsh.model.geo.addLine(point_tags[-1], point_tags[0])
 
-    # Closed loop + surface
+    # closed loop + surface
     loop = gmsh.model.geo.addCurveLoop([hyperbola_curve, closing_line])
     surface = gmsh.model.geo.addPlaneSurface([loop])
 
-    # Physical groups
+    # physical groups
     surf_tag = gmsh.model.addPhysicalGroup(2, [surface])
     gmsh.model.setPhysicalName(2, surf_tag, surface_name)
 
@@ -90,16 +90,14 @@ def make_hyperbola_with_physical_name(
     return surface, loop, surf_tag, interface_tag
 
 
-# =========================================================
-# Parameters
-# =========================================================
+# parameters
 world_size_x = 2.5
 world_size_y = 2.0
 
 world_mesh_size = 0.025
 mesh_size = 0.0025
 
-# Hyperbola parameters
+# hyperbola parameters
 a = 0.06         # controls nose curvature / how quickly it opens
 b = 0.04         # controls lateral spread
 half_height = 0.09
@@ -110,9 +108,7 @@ W_distance = 0.03
 E_distance = 0.03
 
 
-# =========================================================
-# WORLD
-# =========================================================
+# world
 p1 = gmsh.model.geo.addPoint(-world_size_x / 2, -world_size_y / 2, 0, world_mesh_size)
 p2 = gmsh.model.geo.addPoint( world_size_x / 2, -world_size_y / 2, 0, world_mesh_size)
 p3 = gmsh.model.geo.addPoint( world_size_x / 2,  world_size_y / 2, 0, world_mesh_size)
@@ -124,33 +120,31 @@ l3 = gmsh.model.geo.addLine(p3, p4)
 l4 = gmsh.model.geo.addLine(p4, p1)
 
 
-# =========================================================
-# Four inward-facing hyperbolic electrodes
-# Local +x is the pointing direction
-# =========================================================
+# four inward-facing hyperbolic electrodes
+# local +x is the pointing direction
 
-# North points downward toward origin
+# north points downward toward origin
 N_surface, N_loop, N_tag, N_interface = make_hyperbola_with_physical_name(
     0, N_distance, math.pi / 2,
     a, b, half_height, mesh_size,
     "North", "North_contact"
 )
 
-# South points upward toward origin
+# south points upward toward origin
 S_surface, S_loop, S_tag, S_interface = make_hyperbola_with_physical_name(
     0, -S_distance, - math.pi / 2,
     a, b, half_height, mesh_size,
     "South", "South_contact"
 )
 
-# West points right toward origin
+# west points right toward origin
 W_surface, W_loop, W_tag, W_interface = make_hyperbola_with_physical_name(
     -W_distance, 0, math.pi,
     a, b, half_height, mesh_size,
     "West", "West_contact"
 )
 
-# East points left toward origin
+# east points left toward origin
 E_surface, E_loop, E_tag, E_interface = make_hyperbola_with_physical_name(
     E_distance, 0, 0.0,
     a, b, half_height, mesh_size,
@@ -158,9 +152,7 @@ E_surface, E_loop, E_tag, E_interface = make_hyperbola_with_physical_name(
 )
 
 
-# =========================================================
-# AIR / WORLD SURFACE
-# =========================================================
+# air / world surface
 world_loop = gmsh.model.geo.addCurveLoop([l1, l2, l3, l4])
 world_surface = gmsh.model.geo.addPlaneSurface([world_loop, N_loop, S_loop, W_loop, E_loop])
 
@@ -173,9 +165,7 @@ world_boundary_tag = gmsh.model.addPhysicalGroup(1, [l1, l2, l3, l4])
 gmsh.model.setPhysicalName(1, world_boundary_tag, "world_boundary")
 
 
-# =========================================================
-# Mesh + write
-# =========================================================
+# mesh + write
 gmsh.model.mesh.generate(2)
 gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
 gmsh.write("paul_trap_hyperbola_mesh.msh")

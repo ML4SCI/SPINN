@@ -1,0 +1,23 @@
+{
+  "run_dir": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/runs/smoke_pinn_20260601_235949_smoke_baseline",
+  "devsim_rf": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/paul_trap_basis_RF.dat",
+  "n_points": 38854,
+  "phi_rf": {
+    "mse": 14564.2099609375,
+    "rmse": 120.68226623535156,
+    "mae": 92.49581909179688,
+    "p50_abs": 66.88250732421875,
+    "p95_abs": 253.7446746826172,
+    "max_abs": 299.93792724609375,
+    "mean_abs_percent_of_norm": 30.831939697265625,
+    "p95_abs_percent_of_norm": 84.58155822753906
+  },
+  "psi_rf_eV": {
+    "mse": 66.01469421386719,
+    "rmse": 8.124942779541016,
+    "mae": 4.158003330230713,
+    "p50_abs": 0.26460281014442444,
+    "p95_abs": 19.973989486694336,
+    "max_abs": 34.907169342041016
+  }
+}

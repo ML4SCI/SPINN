@@ -1,0 +1,9 @@
+# PIXEL-style grid-feature coordinate projection (adapted to a 2D output head).
+# See README "Architecture assumptions" for what is faithful to Kang et al. 2023.
+model:
+  kind: pixel
+  pixel_grid_resolution: 32
+  pixel_feature_dim: 4
+  pixel_hidden_width: 16
+
+

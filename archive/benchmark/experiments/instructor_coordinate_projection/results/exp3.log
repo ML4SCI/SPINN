@@ -1,0 +1,5 @@
+[exp3] instructor seed=0: rms=1.743e-06, detJ in [1.000, 1.000], cond_max=1.000
+[exp3] instructor seed=1: rms=3.319e-06, detJ in [1.000, 1.000], cond_max=1.000
+[exp3] instructor seed=2: rms=4.845e-06, detJ in [1.000, 1.000], cond_max=1.000
+[exp3] wrote /Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/experiments/instructor_coordinate_projection/results/instructor_comparison.json
+[exp3] wrote /Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/benchmark/experiments/instructor_coordinate_projection/results/instructor_comparison.png

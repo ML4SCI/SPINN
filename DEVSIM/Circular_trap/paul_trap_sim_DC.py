@@ -23,10 +23,8 @@ add_gmsh_contact(mesh=mesh, gmsh_name="West_contact", region="air", material="me
 finalize_mesh(mesh=mesh)
 create_device(mesh=mesh, device=device)
 
-# ----------------------------
-# 2. Electrostatic PDE
-# ----------------------------
-eps0 = 8.854e-14   # F/cm if geometry is in cm
+# 2. electrostatic pde
+eps0 = 8.854e-14   # f/cm if geometry is in cm
 set_parameter(device=device, region=region, name="Permittivity", value=eps0)
 
 node_solution(device=device, region=region, name="Potential")
@@ -73,9 +71,7 @@ for c in contacts:
         node_model=f"{c}_bc", edge_charge_model="DField"
     )
 
-# ----------------------------
-# 3. Basis solve helper
-# ----------------------------
+# 3. basis solve helper
 def solve_basis(active_contact, all_contacts):
     for c in all_contacts:
         if c == "world_boundary_contact":
@@ -93,16 +89,12 @@ def solve_basis(active_contact, all_contacts):
 
     return vals
 
-# ----------------------------
-# 4. Compute basis functions
-# ----------------------------
+# 4. compute basis functions
 phi_north_contact = solve_basis("North_contact", contacts)
 phi_south_contact = solve_basis("South_contact", contacts)
 phi_world_boundary_contact = solve_basis("world_boundary_contact", contacts)
 
-# ----------------------------
-# 5. Form total DC potential by superposition
-# ----------------------------
+# 5. form total dc potential by superposition
 north_potential = 1.0   # volts
 south_potential = 1.0
 world_boundary_potential = 0.0

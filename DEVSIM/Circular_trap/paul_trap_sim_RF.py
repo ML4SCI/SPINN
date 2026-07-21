@@ -23,10 +23,8 @@ add_gmsh_contact(mesh=mesh, gmsh_name="West_contact", region="air", material="me
 finalize_mesh(mesh=mesh)
 create_device(mesh=mesh, device=device)
 
-# ----------------------------
-# 2. Electrostatic PDE
-# ----------------------------
-eps0 = 8.854e-14   # F/cm if geometry is in cm
+# 2. electrostatic pde
+eps0 = 8.854e-14   # f/cm if geometry is in cm
 set_parameter(device=device, region=region, name="Permittivity", value=eps0)
 
 node_solution(device=device, region=region, name="Potential")

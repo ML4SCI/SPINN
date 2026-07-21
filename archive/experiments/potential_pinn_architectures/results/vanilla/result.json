@@ -1,0 +1,147 @@
+{
+  "model": "vanilla",
+  "config": {
+    "seed": 0,
+    "output_root": "experiments/potential_pinn_architectures/results",
+    "geometry": {
+      "world_size_x": 2.5,
+      "world_size_y": 2.0,
+      "radius": 0.05,
+      "north_distance": 0.125,
+      "south_distance": 0.125,
+      "west_distance": 0.125,
+      "east_distance": 0.125
+    },
+    "boundary": {
+      "world_voltage": 0.0,
+      "north_voltage": 0.0,
+      "south_voltage": 0.0,
+      "west_voltage": 300.0,
+      "east_voltage": 300.0
+    },
+    "training": {
+      "steps": 2000,
+      "lr": 0.001,
+      "optimizer": "adam",
+      "n_interior": 2048,
+      "n_world": 512,
+      "n_electrode": 1024,
+      "bc_weight": 100.0,
+      "print_every": 200,
+      "eval_every": 200,
+      "grad_clip": 1.0
+    },
+    "model": {
+      "kind": "vanilla",
+      "activation": "tanh",
+      "vanilla_width": 128,
+      "vanilla_depth": 4,
+      "pixel_grid_resolution": 32,
+      "pixel_feature_dim": 4,
+      "pixel_hidden_width": 16,
+      "pixel_num_grids": 4,
+      "pig_num_gaussians": 512,
+      "pig_feature_dim": 4,
+      "pig_hidden_width": 16,
+      "pig_init_sigma": 0.1
+    },
+    "evaluation": {
+      "devsim_rf": "DEVSIM/Circular_trap/paul_trap_basis_RF.dat",
+      "max_points_plot": 20000,
+      "chunk_size": 8192
+    }
+  },
+  "history": [
+    {
+      "step": 0.0,
+      "total_loss": 4502417.0,
+      "pde_loss": 0.0006943184416741133,
+      "bc_loss": 45024.16796875,
+      "grad_norm": 0.9999999729439747
+    },
+    {
+      "step": 200.0,
+      "total_loss": 3731057.5,
+      "pde_loss": 3072.00390625,
+      "bc_loss": 37279.85546875,
+      "grad_norm": 0.9999999952130292
+    },
+    {
+      "step": 400.0,
+      "total_loss": 3120496.75,
+      "pde_loss": 19968.904296875,
+      "bc_loss": 31005.27734375,
+      "grad_norm": 1.0000001196217068
+    },
+    {
+      "step": 600.0,
+      "total_loss": 2717696.0,
+      "pde_loss": 37011.89453125,
+      "bc_loss": 26806.83984375,
+      "grad_norm": 1.0000001060469312
+    },
+    {
+      "step": 800.0,
+      "total_loss": 2495949.0,
+      "pde_loss": 75443.109375,
+      "bc_loss": 24205.060546875,
+      "grad_norm": 0.9999999411834003
+    },
+    {
+      "step": 1000.0,
+      "total_loss": 2374717.5,
+      "pde_loss": 102525.09375,
+      "bc_loss": 22721.923828125,
+      "grad_norm": 0.9999997060799161
+    },
+    {
+      "step": 1200.0,
+      "total_loss": 2265726.5,
+      "pde_loss": 105580.7578125,
+      "bc_loss": 21601.45703125,
+      "grad_norm": 1.0000002514957027
+    },
+    {
+      "step": 1400.0,
+      "total_loss": 2183769.25,
+      "pde_loss": 110464.09375,
+      "bc_loss": 20733.05078125,
+      "grad_norm": 0.9999998778487359
+    },
+    {
+      "step": 1600.0,
+      "total_loss": 2338651.5,
+      "pde_loss": 315889.5,
+      "bc_loss": 20227.62109375,
+      "grad_norm": 1.0000001911275536
+    },
+    {
+      "step": 1800.0,
+      "total_loss": 2027373.5,
+      "pde_loss": 74704.984375,
+      "bc_loss": 19526.685546875,
+      "grad_norm": 1.000000059054805
+    },
+    {
+      "step": 1999.0,
+      "total_loss": 2021617.125,
+      "pde_loss": 128056.09375,
+      "bc_loss": 18935.609375,
+      "grad_norm": 1.0000000997791485
+    }
+  ],
+  "comparison": {
+    "devsim_rf": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/DEVSIM/Circular_trap/paul_trap_basis_RF.dat",
+    "n_points": 38854,
+    "phi_rf": {
+      "mse": 3018.52197265625,
+      "rmse": 54.941078186035156,
+      "mae": 36.134605407714844,
+      "p50_abs": 14.489620208740234,
+      "p95_abs": 132.41282653808594,
+      "max_abs": 177.28997802734375,
+      "mean_abs_percent_of_norm": 12.044868469238281,
+      "p95_abs_percent_of_norm": 44.13760757446289
+    }
+  }
+}

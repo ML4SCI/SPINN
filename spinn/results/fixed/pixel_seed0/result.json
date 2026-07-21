@@ -1,0 +1,151 @@
+{
+  "backend": "pixel",
+  "seed": 0,
+  "eta_pinn": {
+    "eta_autograd": 1.382337212562561,
+    "eta_fit": 0.9945788743157439,
+    "a_quadrupole": 0.49728943715787194,
+    "b_xy": -0.03113408298710224,
+    "fit_rmse": 0.0012084451606202947,
+    "fit_r2": 0.9907482801041507,
+    "n_points": 709,
+    "purity_c2": 0.2920793552793395,
+    "c2": 0.49771576943831747
+  },
+  "eta_fem": 0.9296054451244969,
+  "eta_abs_error": 0.06497342919124693,
+  "history": [
+    {
+      "backend": "pixel",
+      "seed": 0,
+      "step": 0,
+      "loss_pde": 2.627834128077211e-08,
+      "loss_bc": 0.2500002682209015,
+      "wall_time_sec": 0.048425912857055664
+    },
+    {
+      "backend": "pixel",
+      "seed": 0,
+      "step": 200,
+      "loss_pde": 0.0020361042115837336,
+      "loss_bc": 1.7700280295684934e-05,
+      "wall_time_sec": 7.156311988830566
+    },
+    {
+      "backend": "pixel",
+      "seed": 0,
+      "step": 400,
+      "loss_pde": 0.0007752502569928765,
+      "loss_bc": 9.641958968131803e-06,
+      "wall_time_sec": 14.595340013504028
+    },
+    {
+      "backend": "pixel",
+      "seed": 0,
+      "step": 600,
+      "loss_pde": 0.0020965668372809887,
+      "loss_bc": 1.611198626960686e-06,
+      "wall_time_sec": 21.732927083969116
+    },
+    {
+      "backend": "pixel",
+      "seed": 0,
+      "step": 800,
+      "loss_pde": 0.0010574649786576629,
+      "loss_bc": 9.210518783220323e-07,
+      "wall_time_sec": 28.927496910095215
+    },
+    {
+      "backend": "pixel",
+      "seed": 0,
+      "step": 999,
+      "loss_pde": 0.0009734840714372694,
+      "loss_bc": 8.674911100570171e-07,
+      "wall_time_sec": 35.89822316169739
+    }
+  ],
+  "config": {
+    "experiment": {
+      "name": "fixed_pixel_four_rod",
+      "seed": 0,
+      "geometry": "circular_four_rod",
+      "r0": 1.0,
+      "rod_radius": 1.145,
+      "outer_radius": 5.0,
+      "V0": 1.0
+    },
+    "shape_network": {
+      "type": "residual_mlp",
+      "hidden_layers": 5,
+      "width": 64,
+      "activation": "tanh",
+      "alpha": 0.1,
+      "identity_pretrain_steps": 0,
+      "jacobian_eps": 0.05,
+      "symmetric": true
+    },
+    "physics_backend": {
+      "type": "pixel",
+      "activation": "tanh",
+      "mlp_hidden_layers": 6,
+      "mlp_width": 128,
+      "pixel_grid_resolution": 16,
+      "pixel_feature_dim": 4,
+      "pixel_num_grids": 16,
+      "pixel_decoder_layers": 2,
+      "pixel_decoder_width": 16,
+      "K": 800,
+      "feature_dim": 4,
+      "decoder_layers": 2,
+      "decoder_width": 16,
+      "init_sigma": 0.1
+    },
+    "sampling": {
+      "interior_points": 2000,
+      "electrode_boundary_points_per_electrode": 200,
+      "outer_boundary_points": 600,
+      "center_probe_radius": 0.25,
+      "center_probe_grid": 31,
+      "resample_every": 500
+    },
+    "loss_weights": {
+      "pde": 1.0,
+      "bc": 100.0,
+      "eta": 0.05,
+      "jacobian": 10.0,
+      "gap": 100.0,
+      "curvature": 1.0,
+      "anchor": 10.0
+    },
+    "optimizer": {
+      "type": "adam",
+      "steps": 20000,
+      "lr_theta": 0.001,
+      "lr_phi": 0.0002,
+      "lr_pig_centers": 5e-05,
+      "lr_pig_covariances": 5e-05,
+      "scheduler": "cosine_decay",
+      "lr_fixed_mlp": 0.001,
+      "lr_fixed_pixel": 0.002,
+      "lr_fixed_pig_decoder": 0.001,
+      "lr_fixed_pig_centers": 0.0001
+    },
+    "validation": {
+      "fem_checkpoint_every": 5000,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "primary_metric": "eta_fem",
+      "fem_grid": 120
+    }
+  },
+  "fem": {
+    "eta_fem": 0.9296054451244969,
+    "fem_fit_rmse": 2.3616906032024514e-07,
+    "fem_fit_r2": 0.9999999996301987,
+    "fem_purity_c2": 0.9949668653023203,
+    "grid": 120
+  }
+}

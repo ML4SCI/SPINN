@@ -1,0 +1,15 @@
+{
+  "plan": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/configs/smoke_sweep_plan.json",
+  "base_config": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/configs/smoke.json",
+  "sweep_root": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/sweep_20260601_235948",
+  "experiments": [
+    {
+      "sweep_name": "smoke",
+      "variant_name": "smoke_baseline",
+      "config_path": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/sweep_20260601_235948/generated_configs/001_smoke_baseline.json",
+      "train_returncode": 0,
+      "run_dir": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/runs/smoke_pinn_20260601_235949_smoke_baseline",
+      "compare_returncode": 0
+    }
+  ]
+}

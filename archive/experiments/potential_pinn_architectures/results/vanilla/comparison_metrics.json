@@ -1,0 +1,14 @@
+{
+  "devsim_rf": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/DEVSIM/Circular_trap/paul_trap_basis_RF.dat",
+  "n_points": 38854,
+  "phi_rf": {
+    "mse": 3018.52197265625,
+    "rmse": 54.941078186035156,
+    "mae": 36.134605407714844,
+    "p50_abs": 14.489620208740234,
+    "p95_abs": 132.41282653808594,
+    "max_abs": 177.28997802734375,
+    "mean_abs_percent_of_norm": 12.044868469238281,
+    "p95_abs_percent_of_norm": 44.13760757446289
+  }
+}

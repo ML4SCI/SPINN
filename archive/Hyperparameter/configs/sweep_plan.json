@@ -1,0 +1,102 @@
+{
+  "base_config": "SPINN/Hyperparameter/configs/baseline.json",
+  "compare_after_each": true,
+  "max_compare_points": 20000,
+  "experiments": [
+    {
+      "sweep_name": "baseline",
+      "variant_name": "baseline",
+      "overrides": {}
+    },
+    {
+      "sweep_name": "width",
+      "variant_name": "width_32",
+      "overrides": {"model": {"width": 32}}
+    },
+    {
+      "sweep_name": "width",
+      "variant_name": "width_64",
+      "overrides": {"model": {"width": 64}}
+    },
+    {
+      "sweep_name": "width",
+      "variant_name": "width_256",
+      "overrides": {"model": {"width": 256}}
+    },
+    {
+      "sweep_name": "depth",
+      "variant_name": "depth_2",
+      "overrides": {"model": {"depth": 2}}
+    },
+    {
+      "sweep_name": "depth",
+      "variant_name": "depth_6",
+      "overrides": {"model": {"depth": 6}}
+    },
+    {
+      "sweep_name": "depth",
+      "variant_name": "depth_8",
+      "overrides": {"model": {"depth": 8}}
+    },
+    {
+      "sweep_name": "activation",
+      "variant_name": "activation_relu",
+      "overrides": {"model": {"activation": "relu"}}
+    },
+    {
+      "sweep_name": "activation",
+      "variant_name": "activation_sigmoid",
+      "overrides": {"model": {"activation": "sigmoid"}}
+    },
+    {
+      "sweep_name": "activation",
+      "variant_name": "activation_sinusoidal",
+      "overrides": {"model": {"activation": "sinusoidal"}}
+    },
+    {
+      "sweep_name": "bc_weight",
+      "variant_name": "bc_weight_1",
+      "overrides": {"training": {"bc_weight": 1.0}}
+    },
+    {
+      "sweep_name": "bc_weight",
+      "variant_name": "bc_weight_10",
+      "overrides": {"training": {"bc_weight": 10.0}}
+    },
+    {
+      "sweep_name": "bc_weight",
+      "variant_name": "bc_weight_1000",
+      "overrides": {"training": {"bc_weight": 1000.0}}
+    },
+    {
+      "sweep_name": "optimizer",
+      "variant_name": "optimizer_adamw",
+      "overrides": {"training": {"optimizer": "adamw"}}
+    },
+    {
+      "sweep_name": "optimizer",
+      "variant_name": "optimizer_rmsprop",
+      "overrides": {"training": {"optimizer": "rmsprop"}}
+    },
+    {
+      "sweep_name": "optimizer",
+      "variant_name": "optimizer_sgd",
+      "overrides": {"training": {"optimizer": "sgd", "momentum": 0.9}}
+    },
+    {
+      "sweep_name": "learning_rate",
+      "variant_name": "lr_1e-4",
+      "overrides": {"training": {"lr": 0.0001}}
+    },
+    {
+      "sweep_name": "learning_rate",
+      "variant_name": "lr_3e-4",
+      "overrides": {"training": {"lr": 0.0003}}
+    },
+    {
+      "sweep_name": "learning_rate",
+      "variant_name": "lr_3e-3",
+      "overrides": {"training": {"lr": 0.003}}
+    }
+  ]
+}

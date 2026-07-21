@@ -1,0 +1,33 @@
+{
+  "run_name": "learning_rate_pinn",
+  "variant_name": "lr_1e-4",
+  "sweep_name": "learning_rate",
+  "output_root": "SPINN/Hyperparameter/results/runs",
+  "model": {
+    "width": 128,
+    "depth": 4,
+    "activation": "tanh"
+  },
+  "training": {
+    "steps": 20000,
+    "lr": 0.0001,
+    "optimizer": "adam",
+    "n_int": 4096,
+    "n_world": 1024,
+    "n_electrode": 2048,
+    "bc_weight": 100.0,
+    "print_every": 100,
+    "use_lr_scheduler": true,
+    "lr_scheduler": {
+      "factor": 0.5,
+      "patience": 300,
+      "min_lr": 1e-06
+    },
+    "use_grad_clip": true,
+    "grad_clip_max_norm": 1.0
+  },
+  "evaluation": {
+    "nx": 1000,
+    "ny": 800
+  }
+}

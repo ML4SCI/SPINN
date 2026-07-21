@@ -1,0 +1,6 @@
+# Drives run_all_comparisons.py: which models to train and where to collect
+# their per-model results for the cross-architecture plots and summary CSV.
+models:
+  - vanilla
+  - pixel
+  - pig

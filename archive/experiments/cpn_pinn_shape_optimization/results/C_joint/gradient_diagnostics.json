@@ -1,0 +1,4 @@
+{
+  "pinn_grads_finite_nonzero": true,
+  "cpn_grads_finite_nonzero": true
+}

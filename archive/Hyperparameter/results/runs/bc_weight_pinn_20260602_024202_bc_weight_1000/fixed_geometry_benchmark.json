@@ -1,0 +1,119 @@
+{
+  "run_dir": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/runs/bc_weight_pinn_20260602_024202_bc_weight_1000",
+  "devsim_rf": "/Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/DEVSIM/Circular_trap/paul_trap_basis_RF.dat",
+  "sample_count": 30000,
+  "potential_V": {
+    "rmse": 0.7866195096165359,
+    "mae": 0.6659609399222788,
+    "p95_abs": 1.3133706048583924,
+    "max_abs": 2.74029541015625,
+    "relative_l2": 0.006505524944883227
+  },
+  "electric_field_V_per_cm": {
+    "rmse": 15.949563582851361,
+    "mae": 7.415898688485019,
+    "p95_abs": 32.73872805175774,
+    "max_abs": 246.73294921875004,
+    "relative_l2": 0.01334745306903662
+  },
+  "pinn_center": {
+    "potential_hessian": [
+      [
+        51392.875,
+        129.19176483154297
+      ],
+      [
+        129.19176483154297,
+        -50695.0078125
+      ]
+    ],
+    "potential_hessian_eigenvalues": [
+      -50695.171303846,
+      51393.03849134599
+    ],
+    "laplace_trace_relative": 0.013579021750533644,
+    "quadrupole_strength_V_per_unit2": 51044.104897596,
+    "quadrupole_efficiency": 0.9570769668299249,
+    "secular_frequencies_Hz": [
+      2147063.393388178,
+      2176619.76045808
+    ]
+  },
+  "devsim_center": {
+    "potential_hessian": [
+      [
+        50925.49706537045,
+        0.08799447133514882
+      ],
+      [
+        0.08799447133514882,
+        -50925.46429311977
+      ]
+    ],
+    "potential_hessian_eigenvalues": [
+      -50925.46429319579,
+      50925.49706544647
+    ],
+    "laplace_trace_relative": 6.435332509839833e-07,
+    "quadrupole_strength_V_per_unit2": 50925.48067932113,
+    "quadrupole_efficiency": 0.9548527627372712,
+    "secular_frequencies_Hz": [
+      2156816.8597335885,
+      2156818.247717847
+    ],
+    "quadratic_fit_rmse_V": 0.02059986648176777,
+    "quadratic_fit_points": 745
+  },
+  "pinn_escape": {
+    "status": "grid_diagnostic_not_certified",
+    "barrier_eV": 17.549002291063516,
+    "saddle_value_eV": 17.54901885986328,
+    "start_value_eV": 1.6568799765082076e-05,
+    "target_index": [
+      202,
+      214
+    ],
+    "grid_shape": [
+      385,
+      481
+    ],
+    "grid_spacing_cm": [
+      0.005208333333333333,
+      0.005208333333333333
+    ]
+  },
+  "devsim_escape": {
+    "status": "grid_diagnostic_not_certified",
+    "barrier_eV": 17.8696961080887,
+    "saddle_value_eV": 17.86969611039946,
+    "start_value_eV": 2.310758791614047e-09,
+    "target_index": [
+      202,
+      214
+    ],
+    "grid_shape": [
+      385,
+      481
+    ],
+    "grid_spacing_cm": [
+      0.005208333333333333,
+      0.005208333333333333
+    ]
+  },
+  "center_efficiency_relative_error": 0.002329368651851273,
+  "center_hessian_relative_frobenius_error": 0.007666902719369362,
+  "secular_frequency_relative_l2": 0.007236667334768776,
+  "single_seed_derivative_gate": {
+    "potential_mae_percent_of_voltage": 0.22198697997409292,
+    "potential_mae_below_0_5_percent": true,
+    "field_relative_l2_below_5_percent": true,
+    "hessian_relative_error_below_5_percent": true,
+    "efficiency_relative_error_below_5_percent": true,
+    "frequency_relative_error_below_5_percent": true,
+    "passed": true
+  },
+  "validation_notes": [
+    "The fixed-geometry gate is single-seed evidence; multi-seed confirmation remains required.",
+    "Escape barrier is a structured-grid diagnostic and is excluded from the acceptance gate."
+  ]
+}
