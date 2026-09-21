@@ -1,7 +1,6 @@
 # SPINN Paul-Trap Shape Optimization
 
-Implementation of `SPINN_Experiment_Plan.pdf`: a coordinate-projection shape
-optimizer for a 2D four-rod linear Paul trap, comparing three physics backends
+A coordinate-projection shape optimizer for a 2D four-rod linear Paul trap, comparing three physics backends
 (MLP / PIXEL / PIG) under one optimizer, with the **geometric efficiency `eta`**
 as the headline metric and an **independent finite-difference (FEM) solver** as
 the validator.
