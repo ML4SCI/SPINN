@@ -1,0 +1,48 @@
+{
+  "summary": {
+    "mlp": {
+      "final_eta_fem_mean": 0.9296054436186586,
+      "final_eta_fem_std": 0.0,
+      "best_valid_eta_fem_mean": 0.9296054451244968,
+      "best_valid_eta_fem_std": 0.0,
+      "best_valid_step_mean": 0.0,
+      "eta_mismatch_mean": 0.927801112892501,
+      "min_detJ_over_run": 0.9986040592193604,
+      "n_seeds": 1,
+      "n_valid_fem_checkpoints": 5,
+      "valid_geometry": true
+    },
+    "pig": {
+      "final_eta_fem_mean": 0.8671753916469336,
+      "final_eta_fem_std": 0.0,
+      "best_valid_eta_fem_mean": 0.9296059720423698,
+      "best_valid_eta_fem_std": 0.0,
+      "best_valid_step_mean": 250.0,
+      "eta_mismatch_mean": 6.5761164568716906,
+      "min_detJ_over_run": 0.9480825662612916,
+      "n_seeds": 1,
+      "n_valid_fem_checkpoints": 5,
+      "valid_geometry": true
+    },
+    "pixel": {
+      "final_eta_fem_mean": 0.8671768904080677,
+      "final_eta_fem_std": 0.0,
+      "best_valid_eta_fem_mean": 0.9296059369001108,
+      "best_valid_eta_fem_std": 0.0,
+      "best_valid_step_mean": 250.0,
+      "eta_mismatch_mean": 38.78658282854109,
+      "min_detJ_over_run": 0.9511858224868774,
+      "n_seeds": 1,
+      "n_valid_fem_checkpoints": 5,
+      "valid_geometry": true
+    }
+  },
+  "hypothesis": {
+    "pig_eta_fem": 0.9296059720423698,
+    "best_baseline_eta_fem": 0.9296059369001108,
+    "absolute_gain": 3.514225899170498e-08,
+    "relative_gain": 3.780339345603935e-08,
+    "H1_supported": false,
+    "verdict": "H0 not rejected"
+  }
+}
