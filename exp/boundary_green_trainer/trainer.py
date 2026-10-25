@@ -310,9 +310,70 @@ def plot_optimize_R(starts=(0.9, 1.3, 1.45)):
     print(f"saved {OUT}/05_optimize_R.png")
 
 
+# ---- 6. outer loop on (R, c4): cancel q6 and q10 with a hard clearance floor ----
+# damped Gauss-Newton on r = (q6, q10) with the Hadamard Jacobian; any step that breaks the clearance
+# floor to the enclosure or rod convexity (p + p'' > 0) is halved until feasible.
+
+CLEARANCE = 0.3
+
+
+def feasible(shape):
+    R, c4, c8 = shape
+    g = geometry(shape)
+    return ENCLOSURE - np.linalg.norm(g["rods"], axis=1).max() >= CLEARANCE and R - 15 * abs(c4) - 63 * abs(c8) > 0
+
+
+def optimize_R_c4(x0, steps=20, damping=1e-8):
+    x, hist = np.array(x0, float), []
+    with torch.no_grad():
+        for _ in range(steps):
+            shape = (x[0], x[1], 0.0)
+            q = multipoles(*fit_field(shape, F_DEPTH)).numpy()
+            J = shape_gradient(shape)[1:3, :2]
+            hist.append([*x, q[1], q[2]])
+            dx = -np.linalg.solve(J.T @ J + damping * np.eye(2), J.T @ q[1:3])
+            while not feasible((x[0] + dx[0], x[1] + dx[1], 0.0)):
+                dx /= 2
+            x = x + dx
+    return np.array(hist)
+
+
+def plot_optimize_R_c4(starts=((1.145, 0.0), (1.3, 0.03), (1.0, -0.02))):
+    fig, ax = plt.subplots(1, 3, figsize=(17, 5), constrained_layout=True)
+    for i, x0 in enumerate(starts):
+        h = optimize_R_c4(x0)
+        shape = (h[-1, 0], h[-1, 1], 0.0)
+        with torch.no_grad():
+            src, coef = fit_field(shape, F_DEPTH)
+            q = multipoles(src, coef).numpy()
+            err = rod_residual(shape, src, coef)
+        g = geometry(shape)
+        clear = ENCLOSURE - np.linalg.norm(g["rods"], axis=1).max()
+        print(f"start {x0}: R={shape[0]:.5f} c4={shape[1]:+.5f} q6={q[1]:+.1e} q10={q[2]:+.1e} q14={q[3]:+.1e} clearance={clear:.3f} rod BC max err {err:.1e}")
+        c = f"C{i}"
+        ax[0].plot(h[:, 0], h[:, 1], ".-", color=c, label=f"start {x0}")
+        ax[0].plot(*h[-1, :2], "*", color=c, ms=14)
+        ax[2].semilogy(np.abs(h[:, 2]), "-", color=c, label=f"|q6| start {x0}")
+        ax[2].semilogy(np.abs(h[:, 3]), "--", color=c, label=f"|q10| start {x0}")
+        if i == 0:
+            circ = geometry((1.145168, 0.0, 0.0))
+            for k in range(4):
+                m = g["rod_id"] == k
+                ax[1].fill(*g["rods"][m].T, color="tab:red" if VOLTAGES[k] > 0 else "tab:blue", alpha=0.5)
+                ax[1].plot(*circ["rods"][circ["rod_id"] == k].T, "k--", lw=0.8)
+            ax[1].plot(*np.vstack([g["enc"], g["enc"][:1]]).T, "k-", lw=1)
+            ax[1].add_patch(plt.Circle((0, 0), 1.0, fill=False, ls=":", color="gray"))
+            ax[1].set_aspect("equal"); ax[1].set_title(f"dual-zero electrode R={shape[0]:.4f}, c4={shape[1]:+.4f} (dashed: circular q6=0)")
+    ax[0].set_xlabel("R"); ax[0].set_ylabel("c4"); ax[0].set_title("shape trajectories (Gauss-Newton, Hadamard Jacobian)"); ax[0].legend()
+    ax[2].set_xlabel("outer step"); ax[2].set_title("multipole history"); ax[2].legend(fontsize=7)
+    fig.savefig(f"{OUT}/06_optimize_R_c4.png", dpi=130)
+    print(f"saved {OUT}/06_optimize_R_c4.png")
+
+
 if __name__ == "__main__":
     plot_geometry()
     plot_field()
     plot_multipoles()
     plot_shape_gradient()
     plot_optimize_R()
+    plot_optimize_R_c4()
