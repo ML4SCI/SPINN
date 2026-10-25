@@ -176,6 +176,49 @@ def plot_field(shape=(1.145, 0.04, 0.0)):
     print(f"saved {OUT}/02_green_pig_field.png")
 
 
+# ---- 3. multipole readout ----
+# V(r, theta) = sum_n A_n (r / r0)^n cos(n theta); read A_n on the 0.9 r0 circle, report q_n = A_n / A_2.
+# Torch end to end, so gradients flow through the fitted coefficients; shape derivatives come from step 4.
+
+R_READ = 0.9
+ORDERS = [2, 6, 10, 14]
+N_READ = 720
+_th = torch.arange(N_READ, dtype=torch.float64) * 2 * np.pi / N_READ
+READ_PTS = R_READ * torch.stack([torch.cos(_th), torch.sin(_th)], 1)
+
+
+def multipoles(src, coef, orders=ORDERS):
+    v = potential(READ_PTS, src, coef)
+    A = torch.stack([2 * (v * torch.cos(n * _th)).mean() / R_READ**n for n in orders])
+    return A / A[0]
+
+
+def rod_residual(shape, src, coef):
+    _, held, held_v = boundary_set(shape, offset=0.0)
+    return (potential(held, src, coef) - held_v)[:4 * N_ROD].abs().max().item()
+
+
+def plot_multipoles(radii=(1.0, 1.145, 1.3)):
+    fig, ax = plt.subplots(figsize=(7, 4.5), constrained_layout=True)
+    width = 0.25
+    for i, R in enumerate(radii):
+        shape = (R, 0.0, 0.0)
+        f, _ = train_depth(shape, steps=60)
+        with torch.no_grad():
+            src, coef = fit_field(shape, f)
+            q = multipoles(src, coef).numpy()
+        print(f"R={R}: q6={q[1]:+.3e} q10={q[2]:+.3e} q14={q[3]:+.3e}  rod BC max err {rod_residual(shape, src, coef):.1e}")
+        x = np.arange(1, len(ORDERS)) + (i - 1) * width
+        ax.bar(x, np.abs(q[1:]), width, label=f"R={R}", color=["tab:blue", "tab:green", "tab:red"][i])
+        for xi, qi in zip(x, q[1:]):
+            ax.text(xi, abs(qi) * 1.3, "+" if qi > 0 else "-", ha="center")
+    ax.set_yscale("log"); ax.set_xticks(range(1, len(ORDERS)), [f"|q{n}|" for n in ORDERS[1:]])
+    ax.set_title("circular rods: multipoles relative to quadrupole (sign above bar)"); ax.legend()
+    fig.savefig(f"{OUT}/03_multipoles.png", dpi=130)
+    print(f"saved {OUT}/03_multipoles.png")
+
+
 if __name__ == "__main__":
     plot_geometry()
     plot_field()
+    plot_multipoles()
