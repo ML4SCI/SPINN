@@ -61,8 +61,9 @@ config = {
         "offset_y": "auto",
         "channels": 32,
         # Interpolation kernel:
-        #   "cosine"   -> k(x) = 0.5*(1 - cos(pi*x)); infinitely differentiable,
-        #                 required for 2nd-order operators such as the Laplacian.
+        #   "cosine"   -> k(x) = 0.5*(1 - cos(pi*x)); C1 across cell edges.
+        #   "quintic"  -> k(x) = 6*x^5 - 15*x^4 + 10*x^3; C2 across cell edges,
+        #                 preferred for 2nd-order operators such as the Laplacian.
         #   "bilinear" -> k(x) = x; only valid for 1st-order PDEs.
         "kernel": "cosine",
         # Std of the normal initialization of the cell representations.
@@ -335,8 +336,8 @@ class PIXEL(nn.Module):
         self.c = int(pixel_cfg["channels"])
         self.kernel = pixel_cfg.get("kernel", "cosine").lower()
 
-        if self.kernel not in {"cosine", "bilinear"}:
-            raise ValueError("pixel['kernel'] must be 'cosine' or 'bilinear'.")
+        if self.kernel not in {"cosine", "quintic", "bilinear"}:
+            raise ValueError("pixel['kernel'] must be 'cosine', 'quintic', or 'bilinear'.")
 
         self.x0 = xmin - self.dx
         self.y0 = ymin - self.dy
@@ -387,6 +388,8 @@ class PIXEL(nn.Module):
         # (index i0) receives 1 - w since the kernels form a partition of unity.
         if self.kernel == "cosine":
             return 0.5 * (1.0 - torch.cos(np.pi * frac))
+        if self.kernel == "quintic":
+            return 6.0 * frac**5 - 15.0 * frac**4 + 10.0 * frac**3
         return frac  # bilinear
 
     def interpolate(self, xy):
