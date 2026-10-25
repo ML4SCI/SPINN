@@ -1,16 +1,68 @@
-# Python
+# ---------------------------------------------------------------
+# What gets pushed: code (*.py, *.ipynb, *.sh), configs (*.yaml,
+# *.toml, *.txt), README.md files, and trained model weights (*.pt).
+# Everything else -- agent notes/plans, results, plots, papers,
+# slides, PDFs -- stays local.
+# ---------------------------------------------------------------
+
+# Local-only workspace: paper, slides, blog, notes
+local/
+
+# Agent config, plans, instructions
+.claude/
+CLAUDE.md
+PLAN.md
+
+# Markdown except READMEs (RESULTS.md, logs, reports, handoffs)
+*.md
+!README.md
+
+# Plots, documents, slides
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.pdf
+*.pptx
+*.tex
+*.bib
+
+# Run outputs (keep model weights)
+*.csv
+*.log
+**/results/**
+!**/results/**/
+!**/results/**/*.pt
+!**/results/**/*.py
+**/runs/**/*.json
+
+# Large / regenerable arrays and meshes
+*.npz
+*.npy
+*.msh
+*.dat
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.bcf-SAVE-ERROR
+*.blg
+*.fdb_latexmk
+*.fls
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+
+# Python / OS / editors
 __pycache__/
 *.pyc
 .pytest_cache/
-
-# OS
+.ruff_cache/
 .DS_Store
-
-# Editors
 .vscode/
 .idea/
-
-# Large / regenerable experiment artifacts
-*.npz
-*.msh
-*.dat

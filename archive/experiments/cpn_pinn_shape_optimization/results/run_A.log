@@ -1,9 +1,0 @@
-     0 total=4.061e+00 pde=1.795e-03 pseudo=3.093e-01 bc=3.750e-01
-   100 total=4.092e+00 pde=3.526e-04 pseudo=3.413e-01 bc=3.750e-01
-   200 total=3.520e+11 pde=3.520e+11 pseudo=3.734e-01 bc=3.750e-01
-   300 total=2.113e+09 pde=2.113e+09 pseudo=4.946e-01 bc=3.750e-01
-   400 total=9.469e+08 pde=9.469e+08 pseudo=3.446e-01 bc=3.750e-01
-/Users/georgeliao/.pyenv/versions/3.12.8/lib/python3.12/site-packages/numpy/lib/_nanfunctions_impl.py:1396: RuntimeWarning: All-NaN slice encountered
-  return _nanquantile_unchecked(
-[run] variation A: gradient flow {'pinn_grads_finite_nonzero': False, 'cpn_grads_finite_nonzero': False}
-[run] wrote results to /Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/experiments/cpn_pinn_shape_optimization/results/A_pinn_first

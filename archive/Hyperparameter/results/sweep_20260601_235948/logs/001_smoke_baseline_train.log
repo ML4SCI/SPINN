@@ -1,5 +1,0 @@
-     0 | loss=4.499e+06 | pde=2.225e-03 | bc=4.499e+04 | lr=1.000e-03 | grad=5.556e+04->1.000e+00
-     1 | loss=4.499e+06 | pde=2.149e-03 | bc=4.499e+04 | lr=1.000e-03 | grad=5.548e+04->1.000e+00
-     2 | loss=4.498e+06 | pde=2.417e-03 | bc=4.498e+04 | lr=1.000e-03 | grad=5.542e+04->1.000e+00
-
-Saved run to: /Users/georgeliao/Desktop/Digitised Notes/Machine Learning/Deep Learning/SPINN Project/SPINN/Hyperparameter/results/runs/smoke_pinn_20260601_235949_smoke_baseline
