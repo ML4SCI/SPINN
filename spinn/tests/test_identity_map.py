@@ -29,7 +29,7 @@ def test_identity_jacobian_is_one():
 
 def test_symmetry_preserves_quadrupole_planes():
     config = Config()
-    config.shape_network.symmetric = True
+    config.shape_network.symmetry = "xy_mirror"
     trap = build_trap(config)
     net = build_shape_network(config, trap).float()
     # break the zero init so the deformation is nonzero, then check mirror parity

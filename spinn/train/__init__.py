@@ -1,1 +1,1 @@
-"""Training loops: fixed-geometry physics pretrain and joint shape optimization."""
+"""Training loops, runtime setup, scheduling, and artifact persistence."""

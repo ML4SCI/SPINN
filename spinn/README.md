@@ -6,40 +6,45 @@ optimizer for a 2D four-rod linear Paul trap, comparing three physics backends
 as the headline metric and an **independent finite-difference (FEM) solver** as
 the validator.
 
-The clean comparison is **CPN + MLP vs CPN + PIXEL vs CPN + PIG**, where the
+The main comparison is **CPN + MLP vs CPN + PIXEL vs CPN + PIG**, where the
 coordinate-projection network (CPN, `NN_phi`) is the *fixed* geometry
 parameterization and the backend (`NN_theta`) is the *varied* physics
 representation. Any difference in final `eta` should come from the physics
 representation, not from a different shape optimizer.
 
-## Layout (plan §8)
+## Active package layout
 
-```
+```text
 spinn/
-  config.py                 nested config + YAML loading (Appendix A)
-  configs/                  fixed_{mlp,pixel,pig}.yaml, joint_{mlp,pixel,pig}.yaml
+  config.py                 typed config, validation, overrides, YAML inheritance
+  configs/                  shared fixed/joint bases plus backend overrides
   geometry/
     four_rod.py             normalized circular four-rod trap (r0=1, R_rod=1.145, R_out=5)
+    collocation.py          reproducible interior and boundary training batches
     masks.py                s_design / anchor masks
-    boundary_sampling.py    interior + boundary collocation batches
     export_fem.py           deformed/reference electrode polygons for the validator
   models/
-    shape_network.py        NN_phi: x = z + alpha s(z) Delta_phi(z), zero-init, x/y symmetry
+    layers.py               shared MLP builder, activations, [-R_out, R_out]^2 box normalization
+    shape_network.py        NN_phi: x = z + alpha s(z) Delta_phi(z), zero-init, symmetry projection
     composed.py             V_theta(NN_phi(z)) and the identity shape map
     backends/
       mlp.py pixel.py pig.py decoders.py
   physics/
-    laplace.py              pullback + cartesian Laplacian, gradient, Hessian, Jacobian
+    laplace.py              pullback + cartesian Laplacian, map Jacobian
     eta.py                  eta_autograd, eta_fit, harmonic_purity
     fem_reference.py        finite-difference Laplace solve + FEM-validated eta
   losses/
     pde.py boundary.py geometry_constraints.py objective.py
   train/
-    train_fixed.py train_joint.py schedules.py checkpoint.py
+    train_fixed.py          fixed-geometry backend benchmark
+    train_joint.py          joint field/shape optimization
+    runtime.py              CLI, seeding, device/dtype, LR schedules, gradient steps,
+                            CSV/JSON/checkpoint artifacts, run manifests
   eval/
     evaluate.py make_plots.py compare_backends.py
-  scripts/                  run_all_fixed.sh run_all_joint.sh make_report.sh
-  tests/                    identity, laplace autograd, eta, jacobian, BCs, train smoke
+  foundations/              backend-independent problem specs and the coordinate-gauge audit
+  scripts/                  run_all_*.sh, make_report.sh, ablation grid, hard-BC tuner, diagnostics
+  tests/                    identity, laplace autograd, eta, jacobian, BCs, config, train smoke
   results/                  fixed/ joint/ backend/ figures/
 ```
 
@@ -50,34 +55,22 @@ Dimensionless: `r0 = 1`, `V0 = 1`, rod radius `R_rod = 1.145 r0`, rod centers at
 Boundary conditions: `+V0/2` on the x-axis rods, `-V0/2` on the y-axis rods, `0` on
 the outer circle.
 
-## The `eta` convention
-
-```
-eta = (r0^2 / V0) * d2V/dx2 |_(0,0)
-```
-
-(deck p.8/p.11, plan §4). `eta_fit` is the headline estimator (quadratic fit on
-a center disk, `eta = 2a r0^2/V0`); `eta_autograd` is a diagnostic; harmonic
-purity tracks `|c2|` against higher orders. **All three are logged.**
-
-With the `+/-V0/2` differential drive, `V0` is the peak-to-peak RF voltage scale
-used by the eta formula. `eta_fit` recovers exactly `1.0` on a perfect normalized
-quadrupole `V=(V0/2r0^2)(x^2-y^2)` (see `tests/test_eta_hyperbolic.py`).
-
-## How to run
+## Installation and commands
 
 From `SPINN/`:
 
 ```bash
+python3 -m pip install -e '.[dev]'
+
 # 1. Fixed-geometry PDE-solver benchmark
-python -m spinn.train.train_fixed --config fixed_mlp.yaml   --seed 0
-python -m spinn.train.train_fixed --config fixed_pixel.yaml --seed 0
-python -m spinn.train.train_fixed --config fixed_pig.yaml   --seed 0
+python3 -m spinn.train.train_fixed --config fixed_mlp.yaml   --seed 0
+python3 -m spinn.train.train_fixed --config fixed_pixel.yaml --seed 0
+python3 -m spinn.train.train_fixed --config fixed_pig.yaml   --seed 0
 
 # 2. Main joint shape-optimization benchmark
-python -m spinn.train.train_joint --config joint_mlp.yaml   --seed 0
-python -m spinn.train.train_joint --config joint_pixel.yaml --seed 0
-python -m spinn.train.train_joint --config joint_pig.yaml   --seed 0
+python3 -m spinn.train.train_joint --config joint_mlp.yaml   --seed 0
+python3 -m spinn.train.train_joint --config joint_pixel.yaml --seed 0
+python3 -m spinn.train.train_joint --config joint_pig.yaml   --seed 0
 
 # 3. All seeds
 bash spinn/scripts/run_all_fixed.sh
@@ -86,27 +79,32 @@ bash spinn/scripts/run_all_joint.sh
 # 4. Compare + plot
 bash spinn/scripts/make_report.sh
 # per-run geometry/backend diagnostics:
-python -m spinn.eval.evaluate --config joint_pig.yaml \
+python3 -m spinn.eval.evaluate --config joint_pig.yaml \
   --model spinn/results/joint/pig_seed0/model.pt --out spinn/results/figures/pig_seed0
 ```
 
-Smoke a run with small counts and few steps:
+First start with a small smoke run with small counts and few steps:
 
 ```bash
-python -m spinn.train.train_joint --config joint_pig.yaml --steps 20 \
+python3 -m spinn.train.train_joint --config joint_pig.yaml --steps 20 \
   --override sampling.interior_points=500 --override validation.fem_grid=80
 ```
 
 Tests:
 
 ```bash
-python -m pytest spinn/tests -o testpaths=spinn/tests -q
+python3 -m pytest
+ruff check spinn
+ruff format --check spinn
 ```
+
+Every training run writes a `manifest.json` beside its model and result. The
+manifest records the resolved configuration, Python/package versions, Git
+revision and working-tree state, timestamps, device settings, and final metrics.
 
 ## Outputs (plan §6, §8)
 
-* `results/fixed/metrics.csv` — `backend, seed, step, loss_pde, loss_bc,
-  eta_pinn, eta_fem, eta_abs_error, wall_time_sec`
+* `results/fixed/metrics.csv` — `backend, seed, step, loss_pde, loss_bc, eta_pinn, eta_fem, eta_abs_error, wall_time_sec`
 * `results/joint/metrics.csv` — per-checkpoint eta_pinn / eta_fem, all loss
   terms, `min_detJ`, wall time
 * `results/joint/checkpoints.csv` — checkpoint/geometry/FEM paths + validity
@@ -117,24 +115,3 @@ python -m pytest spinn/tests -o testpaths=spinn/tests -q
 * `results/joint/comparison_summary.json` — per-backend final FEM eta, mismatch,
   and the H1/H0 verdict (plan §7 thresholds: PIG wins if `>=0.03` absolute or
   `>=5%` relative over the best baseline)
-
-## Stages (plan §2)
-
-`experiment.geometry`: `circular_four_rod` (stages B/C, default),
-`perturbed_four_rod` (stage D robustness). The analytic-hyperbolic sanity (stage
-A) is covered by `tests/test_eta_hyperbolic.py`.
-
-## Physics references
-
-* Zhang, Lin, Wang (2024): coordinate-projection physics-informed shape
-  optimization — residual map `x = z + s(z) Delta_phi(z)`, positive-Jacobian
-  constraint, joint loss `L_PDE + L_BC + L_design + L_geometry`.
-* Kang et al. (PIXEL): learnable cell/grid features, cosine interpolation kernel
-  (multiply differentiable, required for the second-order Laplace residual).
-* Kang et al. (PIG): learnable Gaussian features with movable centers and
-  diagonal covariance as an adaptive parametric mesh.
-
-The backends mirror the repo's reviewed implementations in
-`experiments/potential_pinn_architectures/models/` and
-`experiments/paper_architecture_comparison/PAPER_IMPLEMENTATION_SPEC.md`.
-```

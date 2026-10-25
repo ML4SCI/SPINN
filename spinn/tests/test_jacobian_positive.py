@@ -22,7 +22,7 @@ def _net():
 
 
 def test_jacobian_hinge_zero_at_identity():
-    config, trap, net = _net()
+    config, _, net = _net()
     z = torch.randn(128, 2, requires_grad=True)
     loss = jacobian_loss(net, z, eps=config.shape_network.jacobian_eps)
     # identity has det = 1 > eps, so the hinge is zero
@@ -31,7 +31,7 @@ def test_jacobian_hinge_zero_at_identity():
 
 
 def test_constraints_finite_and_backprop():
-    config, trap, net = _net()
+    _, trap, net = _net()
     z = torch.randn(64, 2, requires_grad=True)
     total = (
         jacobian_loss(net, z, eps=0.05)
@@ -42,4 +42,4 @@ def test_constraints_finite_and_backprop():
     assert torch.isfinite(total)
     total.backward()
     grads = [p.grad for p in net.parameters() if p.grad is not None]
-    assert any(torch.any(g != 0) for g in grads) or float(total) == 0.0
+    assert any(torch.any(g != 0) for g in grads) or total.detach().item() == 0.0

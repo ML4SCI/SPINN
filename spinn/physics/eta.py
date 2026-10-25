@@ -1,22 +1,7 @@
-"""Geometric efficiency factor ``eta`` and its robust estimators.
+"""Geometric efficiency ``eta`` estimators and harmonic purity.
 
-Definition (deck p.8, p.11; plan sec. 4):
-
-    eta = (r0^2 / V0) * d2V/dx2 |_(0,0)
-
-for a normalized quadrupole ``V ~ (V0/(2 r0^2))(x^2 - y^2)`` so a perfect
-hyperbolic field gives ``eta = 1``. Three estimators are provided and all are
-logged, per the plan ("Do not rely only on one autograd second derivative ...
-Use both methods and log both"):
-
-1. :func:`eta_autograd` -- second derivative at the origin by autograd.
-2. :func:`eta_fit` -- least-squares quadratic fit ``V = a(x^2 - y^2) + b xy +
-   c x + d y + e`` on a small center disk; ``eta = 2 a r0^2 / V0``.
-3. :func:`harmonic_purity` -- cylindrical-harmonic decomposition, tracking
-   ``|c2|`` against higher orders ``c4, c6``.
-
-The headline metric is :func:`eta_fit` (or the FEM eta); :func:`eta_autograd`
-is a diagnostic.
+``eta = (r0^2 / V0) d^2V/dx^2`` at the trap center, normalized so the ideal
+quadrupole ``V = V0/(2 r0^2) (x^2 - y^2)`` has ``eta = 1``.
 """
 
 from __future__ import annotations
@@ -25,13 +10,24 @@ import numpy as np
 import torch
 
 
-def eta_autograd(backend, r0: float, V0: float, *, device="cpu", dtype=torch.float32) -> float:
-    """``eta = (r0^2/V0) d2V/dx2`` at the origin, evaluated on physical coords."""
+def center_d2v_dx2(
+    field, *, device="cpu", dtype=torch.float32, create_graph: bool = False
+) -> torch.Tensor:
+    """``d^2 field / dx^2`` at the origin by nested autograd, shaped ``(1,)``."""
     x = torch.zeros(1, 2, device=device, dtype=dtype, requires_grad=True)
-    v = backend(x)
+    v = field(x)
     grad = torch.autograd.grad(v, x, torch.ones_like(v), create_graph=True)[0]
-    d2vdx2 = torch.autograd.grad(grad[:, 0], x, torch.ones_like(grad[:, 0]), create_graph=False)[0][:, 0]
-    return float((r0**2 / V0) * d2vdx2.item())
+    return torch.autograd.grad(
+        grad[:, 0], x, torch.ones_like(grad[:, 0]), create_graph=create_graph
+    )[0][:, 0]
+
+
+def eta_autograd(
+    backend, r0: float, V0: float, *, device="cpu", dtype=torch.float32
+) -> float:
+    return float(
+        (r0**2 / V0) * center_d2v_dx2(backend, device=device, dtype=dtype).item()
+    )
 
 
 def eta_fit(
@@ -53,7 +49,7 @@ def eta_fit(
     x, y = points[:, 0], points[:, 1]
     design = np.column_stack([x**2 - y**2, x * y, x, y, np.ones_like(x)])
     coef, *_ = np.linalg.lstsq(design, potential, rcond=None)
-    a, b, c, d, e = coef
+    a, b, *_ = coef
     predicted = design @ coef
     rss = float(np.sum((predicted - potential) ** 2))
     tss = float(np.sum((potential - potential.mean()) ** 2)) or 1.0
@@ -63,7 +59,7 @@ def eta_fit(
         "b_xy": float(b),
         "fit_rmse": float(np.sqrt(np.mean((predicted - potential) ** 2))),
         "fit_r2": float(1.0 - rss / tss),
-        "n_points": int(len(points)),
+        "n_points": len(points),
     }
 
 
@@ -75,9 +71,9 @@ def harmonic_purity(
 ) -> dict:
     """Cylindrical-harmonic amplitudes ``|c_m|`` of ``V(r, theta)`` near center.
 
-    Fits ``V = sum_m r^m (a_m cos(m theta) + b_m sin(m theta))`` for even ``m``
-    up to ``max_order`` (the quadrupole is ``m = 2``) and reports the purity
-    ``|c2| / sum_m |c_m|``.
+    Fits ``V = c0 + sum_m r^m (a_m cos(m theta) + b_m sin(m theta))`` for even
+    ``m`` up to ``max_order`` (the quadrupole is ``m = 2``) and reports the
+    purity ``|c2| / sum_m |c_m|``.
     """
     points = np.asarray(points, dtype=float)
     potential = np.asarray(potential, dtype=float).reshape(-1)
@@ -85,25 +81,15 @@ def harmonic_purity(
     points, potential = points[keep], potential[keep]
     r = np.hypot(points[:, 0], points[:, 1])
     theta = np.arctan2(points[:, 1], points[:, 0])
-    orders = list(range(0, max_order + 1, 2))
+    orders = range(2, max_order + 1, 2)
     cols = [np.ones_like(r)]
-    labels = ["const"]
     for m in orders:
-        if m == 0:
-            continue
-        cols.append(r**m * np.cos(m * theta))
-        cols.append(r**m * np.sin(m * theta))
-        labels += [f"a{m}", f"b{m}"]
-    design = np.column_stack(cols)
-    coef, *_ = np.linalg.lstsq(design, potential, rcond=None)
-    amps = {}
-    idx = 1
-    for m in orders:
-        if m == 0:
-            continue
-        a_m, b_m = coef[idx], coef[idx + 1]
-        amps[m] = float(np.hypot(a_m, b_m))
-        idx += 2
+        cols += [r**m * np.cos(m * theta), r**m * np.sin(m * theta)]
+    coef, *_ = np.linalg.lstsq(np.column_stack(cols), potential, rcond=None)
+    amps = {
+        m: float(np.hypot(coef[2 * i + 1], coef[2 * i + 2]))
+        for i, m in enumerate(orders)
+    }
     total = sum(amps.values()) or 1.0
     return {
         "amplitudes": amps,
@@ -122,11 +108,15 @@ def eta_from_backend_on_grid(
     device="cpu",
     dtype=torch.float32,
 ) -> dict:
-    """Convenience: evaluate the backend on a center grid and return all etas."""
+    """Evaluate the backend on a center grid and return all eta estimates."""
     with torch.no_grad():
         x = torch.as_tensor(center_grid, device=device, dtype=dtype)
         v = backend(x).cpu().numpy().reshape(-1)
     fit = eta_fit(center_grid, v, r0, V0, radius=radius)
     purity = harmonic_purity(center_grid, v, radius=radius)
-    auto = eta_autograd(backend, r0, V0, device=device, dtype=dtype)
-    return {"eta_autograd": auto, **fit, **{"purity_c2": purity["purity_c2"], "c2": purity["c2"]}}
+    return {
+        "eta_autograd": eta_autograd(backend, r0, V0, device=device, dtype=dtype),
+        **fit,
+        "purity_c2": purity["purity_c2"],
+        "c2": purity["c2"],
+    }

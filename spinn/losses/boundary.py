@@ -1,20 +1,19 @@
 """Boundary loss: Dirichlet voltage mismatch on electrodes and outer boundary.
 
-``L_bc = mean(|V_theta(x_b) - V_b|^2)`` over electrode and outer-boundary points.
 Boundary points are prescribed on reference coordinates and pushed through the
 same composed model, so the condition is enforced on the geometry the map
-produces. With normalized units (V0 = 1) no extra voltage scaling is needed.
+produces.
 """
 
 from __future__ import annotations
 
 import torch
 
+from ..geometry.collocation import CollocationBatch
 from ..models.composed import ComposedField
-from ..geometry.boundary_sampling import Batch
 
 
-def boundary_loss(model: ComposedField, batch: Batch) -> torch.Tensor:
+def boundary_loss(model: ComposedField, batch: CollocationBatch) -> torch.Tensor:
     el_v, _ = model(batch.electrode_points)
     out_v, _ = model(batch.outer_points)
     electrode_term = torch.mean((el_v - batch.electrode_voltages) ** 2)

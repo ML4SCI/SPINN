@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Render the plan's result tables (markdown) from the logged CSVs.
 
 Produces:
@@ -26,7 +25,12 @@ def _fixed_table(path: Path) -> str:
     if not path.exists():
         return "_No fixed-geometry results found._\n"
     df = pd.read_csv(path)
-    finals = df[df["eta_fem"].notna()].sort_values("step").groupby(["backend", "seed"]).tail(1)
+    finals = (
+        df[df["eta_fem"].notna()]
+        .sort_values("step")
+        .groupby(["backend", "seed"])
+        .tail(1)
+    )
     agg = finals.groupby("backend").agg(
         eta_pinn=("eta_pinn", "mean"),
         eta_fem=("eta_fem", "mean"),
@@ -34,7 +38,9 @@ def _fixed_table(path: Path) -> str:
     )
     lines = ["| backend | eta_pinn | eta_fem | \\|error\\| |", "|---|---|---|---|"]
     for backend, row in agg.iterrows():
-        lines.append(f"| {backend} | {row.eta_pinn:.4f} | {row.eta_fem:.4f} | {row.eta_abs_error:.4f} |")
+        lines.append(
+            f"| {backend} | {row.eta_pinn:.4f} | {row.eta_fem:.4f} | {row.eta_abs_error:.4f} |"
+        )
     return "\n".join(lines) + "\n"
 
 
@@ -67,7 +73,9 @@ def main(argv: list[str] | None = None) -> None:
     parts.append("\n## Joint shape-optimization result\n")
     parts.append(_joint_table(summary) if summary else "_No joint results found._\n")
     parts.append("\n## Hypothesis verdict (plan sec. 7)\n")
-    parts.append("```\n" + "\n".join(f"{k}: {v}" for k, v in verdict.items()) + "\n```\n")
+    parts.append(
+        "```\n" + "\n".join(f"{k}: {v}" for k, v in verdict.items()) + "\n```\n"
+    )
 
     out = Path(args.out)
     out.write_text("\n".join(parts))

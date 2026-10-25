@@ -1,48 +1,51 @@
-"""Fixed-geometry physics-solver benchmark (plan stage 1).
-
-The shape network is the exact identity, so this trains a physics backend
-(MLP / PIXEL / PIG) to solve Laplace on the *fixed* circular four-rod geometry.
-It answers "which backend is the better PDE solver before any deformation" and
-produces the fixed-geometry eta-error comparison (PINN eta vs FEM eta).
-
-Outputs (under ``results/fixed/<backend>_seed<k>/``):
-  metrics.csv, result.json, model.pt
-and appends a row to ``results/fixed/metrics.csv``.
-"""
+"""Train and validate one physics backend on the fixed trap geometry."""
 
 from __future__ import annotations
 
-import argparse
-import time
 from pathlib import Path
 
-import numpy as np
 import torch
 
-from ..config import Config, apply_overrides, load_config
-from ..geometry.boundary_sampling import sample_batch
+from ..config import Config
 from ..geometry.export_fem import reference_geometry
 from ..geometry.four_rod import build_trap
 from ..losses.boundary import boundary_loss
 from ..losses.pde import pde_loss
 from ..models.backends import build_backend
 from ..models.composed import ComposedField, IdentityShapeNetwork
-from ..physics import eta as eta_mod
+from ..physics.eta import eta_from_backend_on_grid
 from ..physics.fem_reference import fem_eta
-from .checkpoint import append_csv, save_checkpoint, write_json
-from .schedules import build_scheduler
-
-RESULTS_ROOT = Path(__file__).resolve().parents[1] / "results"
+from .runtime import (
+    RESULTS_ROOT,
+    RunContext,
+    append_csv,
+    apply_gradient_step,
+    build_scheduler,
+    parse_training_config,
+    resolve_device,
+    resolve_dtype,
+    save_checkpoint,
+    seed_everything,
+    training_batches,
+    write_json,
+)
 
 FIXED_FIELDS = [
-    "backend", "seed", "step", "loss_pde", "loss_bc",
-    "eta_pinn", "eta_fem", "eta_abs_error", "wall_time_sec",
+    "backend",
+    "seed",
+    "step",
+    "loss_pde",
+    "loss_bc",
+    "eta_pinn",
+    "eta_fem",
+    "eta_abs_error",
+    "wall_time_sec",
 ]
 
 
-def _fixed_lr(config: Config) -> dict:
+def _fixed_learning_rates(config: Config) -> dict:
     opt = config.optimizer
-    kind = config.physics_backend.type.lower()
+    kind = config.physics_backend.type
     if kind == "mlp":
         return {"lr_main": opt.lr_fixed_mlp}
     if kind == "pixel":
@@ -54,102 +57,122 @@ def _fixed_lr(config: Config) -> dict:
     }
 
 
-def train_fixed(config: Config, steps: int | None = None, results_root: Path = RESULTS_ROOT) -> dict:
-    torch.manual_seed(config.experiment.seed)
-    rng = np.random.default_rng(config.experiment.seed)
+def train_fixed(
+    config: Config,
+    steps: int | None = None,
+    results_root: Path = RESULTS_ROOT,
+) -> dict:
+    """Train a backend with an identity shape map and compare it with FD."""
+    config.validate()
+    rng = seed_everything(config)
+    device = resolve_device(config)
+    dtype = resolve_dtype(config)
+    s, exp, w = config.sampling, config.experiment, config.loss_weights
+    name = config.physics_backend.type
+    label = f"fixed:{name}"
 
     trap = build_trap(config)
     backend = build_backend(config)
-    model = ComposedField(IdentityShapeNetwork(), backend).float()
-
-    lrs = _fixed_lr(config)
-    optimizer = torch.optim.Adam(backend.param_groups(**lrs))
+    model = ComposedField(IdentityShapeNetwork(), backend).to(
+        device=device, dtype=dtype
+    )
+    optimizer = torch.optim.Adam(backend.param_groups(**_fixed_learning_rates(config)))
     total_steps = steps if steps is not None else config.optimizer.steps
     scheduler = build_scheduler(optimizer, config.optimizer.scheduler, total_steps)
+    run = RunContext.create("fixed", config, results_root)
 
-    s = config.sampling
-    exp = config.experiment
-    center_grid = trap.center_probe_grid(s.center_probe_radius, s.center_probe_grid)
-
-    backend_name = config.physics_backend.type
-    tag = f"{backend_name}_seed{exp.seed}"
-    run_dir = results_root / "fixed" / tag
-    run_dir.mkdir(parents=True, exist_ok=True)
-
-    start = time.time()
     history = []
-    for step in range(total_steps):
-        if step % s.resample_every == 0:
-            batch = sample_batch(
-                trap, rng, s.interior_points,
-                s.electrode_boundary_points_per_electrode, s.outer_boundary_points,
-            )
+    for step, batch in training_batches(
+        config, trap, rng, total_steps, device=device, dtype=dtype
+    ):
         optimizer.zero_grad()
-        potential, _ = model(batch.interior)
-        l_pde = pde_loss(potential, batch.interior, model.shape_network)
+        potential, mapped = model(batch.interior)
+        l_pde = pde_loss(
+            potential, batch.interior, model.shape_network, mapped_points=mapped
+        )
         l_bc = boundary_loss(model, batch)
-        loss = config.loss_weights.pde * l_pde + config.loss_weights.bc * l_bc
-        if not torch.isfinite(loss):
+        loss = w.pde * l_pde + w.bc * l_bc
+        if not apply_gradient_step(
+            loss, model, optimizer, scheduler, config, label=label, step=step
+        ):
             continue
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-        optimizer.step()
-        if scheduler is not None:
-            scheduler.step()
 
-        if step % 200 == 0 or step + 1 == total_steps:
+        if step % config.runtime.log_every == 0 or step + 1 == total_steps:
             row = {
-                "backend": backend_name, "seed": exp.seed, "step": step,
-                "loss_pde": float(l_pde.detach()), "loss_bc": float(l_bc.detach()),
-                "wall_time_sec": time.time() - start,
+                "backend": name,
+                "seed": exp.seed,
+                "step": step,
+                "loss_pde": float(l_pde.detach()),
+                "loss_bc": float(l_bc.detach()),
+                "wall_time_sec": run.elapsed_seconds,
             }
             history.append(row)
-            print(f"[fixed:{backend_name}] step {step:6d} pde={row['loss_pde']:.3e} bc={row['loss_bc']:.3e}", flush=True)
+            print(
+                f"[{label}] step {step:6d} pde={row['loss_pde']:.3e} bc={row['loss_bc']:.3e}",
+                flush=True,
+            )
 
-    # final eta: PINN vs FEM on the fixed reference geometry
-    eta_pinn = eta_mod.eta_from_backend_on_grid(
-        backend, center_grid, exp.r0, exp.V0, s.center_probe_radius
+    eta_pinn = eta_from_backend_on_grid(
+        backend,
+        trap.center_probe_grid(s.center_probe_radius, s.center_probe_grid),
+        exp.r0,
+        exp.V0,
+        s.center_probe_radius,
+        device=device,
+        dtype=dtype,
     )
-    geom = reference_geometry(trap)
-    fem = fem_eta(geom, exp.r0, exp.V0, grid=config.validation.fem_grid, center_radius=s.center_probe_radius)
+    fem = fem_eta(
+        reference_geometry(trap),
+        exp.r0,
+        exp.V0,
+        grid=config.validation.fem_grid,
+        center_radius=s.center_probe_radius,
+    )
     eta_abs_error = abs(eta_pinn["eta_fit"] - fem["eta_fem"])
+    last = history[-1] if history else {}
 
-    final_row = {
-        "backend": backend_name, "seed": exp.seed, "step": total_steps,
-        "loss_pde": history[-1]["loss_pde"] if history else float("nan"),
-        "loss_bc": history[-1]["loss_bc"] if history else float("nan"),
-        "eta_pinn": eta_pinn["eta_fit"], "eta_fem": fem["eta_fem"],
-        "eta_abs_error": eta_abs_error, "wall_time_sec": time.time() - start,
-    }
-    append_csv(results_root / "fixed" / "metrics.csv", final_row, FIXED_FIELDS)
-    save_checkpoint(model, run_dir / "model.pt")
+    append_csv(
+        results_root / "fixed" / "metrics.csv",
+        {
+            "backend": name,
+            "seed": exp.seed,
+            "step": total_steps,
+            "loss_pde": last.get("loss_pde", float("nan")),
+            "loss_bc": last.get("loss_bc", float("nan")),
+            "eta_pinn": eta_pinn["eta_fit"],
+            "eta_fem": fem["eta_fem"],
+            "eta_abs_error": eta_abs_error,
+            "wall_time_sec": run.elapsed_seconds,
+        },
+        FIXED_FIELDS,
+    )
+    save_checkpoint(model, run.directory / "model.pt")
     result = {
-        "backend": backend_name, "seed": exp.seed,
-        "eta_pinn": eta_pinn, "eta_fem": fem["eta_fem"],
-        "eta_abs_error": eta_abs_error, "history": history,
+        "backend": name,
+        "seed": exp.seed,
+        "eta_pinn": eta_pinn,
+        "eta_fem": fem["eta_fem"],
+        "eta_abs_error": eta_abs_error,
+        "history": history,
+        "steps": total_steps,
         "config": config.to_dict(),
+        "fem": fem,
     }
-    fem.pop("_solved", None)
-    result["fem"] = fem
-    write_json(run_dir / "result.json", result)
-    print(f"[fixed:{backend_name}] eta_pinn={eta_pinn['eta_fit']:.4f} eta_fem={fem['eta_fem']:.4f} |err|={eta_abs_error:.4f}")
+    write_json(run.directory / "result.json", result)
+    run.finish(
+        eta_pinn=eta_pinn["eta_fit"],
+        eta_fem=fem["eta_fem"],
+        eta_abs_error=eta_abs_error,
+    )
+    print(
+        f"[{label}] eta_pinn={eta_pinn['eta_fit']:.4f} eta_fem={fem['eta_fem']:.4f} |err|={eta_abs_error:.4f}"
+    )
     return result
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", required=True)
-    parser.add_argument("--seed", type=int, default=None)
-    parser.add_argument("--steps", type=int, default=None)
-    parser.add_argument("--override", action="append", default=[])
-    args = parser.parse_args(argv)
-
-    config = load_config(args.config)
-    if args.override:
-        config = apply_overrides(config, args.override)
-    if args.seed is not None:
-        config.experiment.seed = args.seed
-    train_fixed(config, steps=args.steps)
+    config, steps = parse_training_config(__doc__, argv)
+    train_fixed(config, steps=steps)
 
 
 if __name__ == "__main__":

@@ -1,25 +1,14 @@
-"""Normalized 2D four-rod linear Paul trap cross-section.
-
-Per ``SPINN_Experiment_Plan.pdf`` (Recommended first geometry):
-
-* dimensionless units, ``r0 = 1``, ``V0 = 1``;
-* rod radius ``R_rod = 1.145 r0`` (standard circular-rod approximation to the
-  hyperbolic quadrupole field, deck p.6);
-* rod centers at ``(+/-(r0 + R_rod), 0)`` and ``(0, +/-(r0 + R_rod))``;
-* vacuum domain: disk of radius ``R_out = 5 r0`` minus the four rods;
-* positive RF electrodes (``V = +V0/2``) on the x-axis, negative RF electrodes
-  (``V = -V0/2``) on the y-axis, outer boundary grounded (``V = 0``).
-
-The geometry exposes signed-distance helpers so interior collocation points,
-electrode boundary points, and the outer boundary can be sampled consistently,
-and so the FEM finite-difference validator can mask the vacuum region.
-"""
+"""Authoritative normalized geometry and sampling for a four-rod trap."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 import numpy as np
+
+# Mild rod asymmetry for the robustness/recovery stage (plan stage D).
+_PERTURBED_CENTERS = (0.06, -0.04, 0.03, -0.05)
+_PERTURBED_RADII = (0.05, -0.03, 0.04, -0.02)
 
 
 @dataclass(frozen=True)
@@ -30,6 +19,19 @@ class Electrode:
     radius: float
     voltage_sign: float  # +1 -> +V0/2 rail, -1 -> -V0/2 rail
 
+    def boundary(self, theta: np.ndarray) -> np.ndarray:
+        """Points on the rod surface at angles ``theta``, shaped ``(len(theta), 2)``."""
+        return np.column_stack(
+            [
+                self.cx + self.radius * np.cos(theta),
+                self.cy + self.radius * np.sin(theta),
+            ]
+        )
+
+    def ring(self, n: int) -> np.ndarray:
+        """``n`` uniformly spaced surface points (open polygon, no repeated end)."""
+        return self.boundary(np.linspace(0.0, 2.0 * np.pi, n, endpoint=False))
+
 
 @dataclass(frozen=True)
 class FourRodTrap:
@@ -37,7 +39,7 @@ class FourRodTrap:
     rod_radius: float = 1.145
     outer_radius: float = 5.0
     V0: float = 1.0
-    # asymmetry knobs for stage D (fractional perturbations of rod centers/radii)
+    # fractional perturbations of rod center distances and radii (East, West, North, South)
     center_perturb: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
     radius_perturb: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
 
@@ -68,25 +70,21 @@ class FourRodTrap:
             ("North", 0.0, d, -1.0),
             ("South", 0.0, -d, -1.0),
         ]
-        out: list[Electrode] = []
-        for (name, cx, cy, sign), dc, dr in zip(
-            base, self.center_perturb, self.radius_perturb
-        ):
-            scale = 1.0 + dc
-            out.append(Electrode(name, cx * scale, cy * scale, rr * (1.0 + dr), sign))
-        return out
+        return [
+            Electrode(name, cx * (1.0 + dc), cy * (1.0 + dc), rr * (1.0 + dr), sign)
+            for (name, cx, cy, sign), dc, dr in zip(
+                base, self.center_perturb, self.radius_perturb
+            )
+        ]
 
     # --- signed-distance helpers (positive = inside vacuum) ----------------
     def electrode_sdf(self, points: np.ndarray) -> np.ndarray:
-        """Distance from each rod surface; positive outside the rod metal.
-
-        Returns the minimum over the four rods, shaped ``(N,)``.
-        """
+        """Distance from the nearest rod surface, positive outside the metal, ``(N,)``."""
         points = np.atleast_2d(np.asarray(points, dtype=float))
-        dists = []
-        for e in self.electrodes():
-            d = np.hypot(points[:, 0] - e.cx, points[:, 1] - e.cy) - e.radius
-            dists.append(d)
+        dists = [
+            np.hypot(points[:, 0] - e.cx, points[:, 1] - e.cy) - e.radius
+            for e in self.electrodes()
+        ]
         return np.min(np.stack(dists, axis=1), axis=1)
 
     def outer_sdf(self, points: np.ndarray) -> np.ndarray:
@@ -105,61 +103,44 @@ class FourRodTrap:
         R = self.outer_radius
         while len(out) < n:
             batch = rng.uniform(-R, R, size=(max(n * 2, 1024), 2))
-            keep = self.in_vacuum(batch, margin=1e-3)
-            out = np.vstack([out, batch[keep]])
+            out = np.vstack([out, batch[self.in_vacuum(batch, margin=1e-3)]])
         return out[:n]
 
     def sample_electrode_boundaries(
         self, n_per_electrode: int, rng: np.random.Generator
     ) -> tuple[np.ndarray, np.ndarray]:
         """Points on each rod surface and their prescribed voltages (``+/-V0/2``)."""
-        points = []
-        voltages = []
+        points, voltages = [], []
         for e in self.electrodes():
-            theta = rng.uniform(0.0, 2.0 * np.pi, n_per_electrode)
-            circle = np.column_stack(
-                [e.cx + e.radius * np.cos(theta), e.cy + e.radius * np.sin(theta)]
-            )
-            points.append(circle)
+            points.append(e.boundary(rng.uniform(0.0, 2.0 * np.pi, n_per_electrode)))
             voltages.append(np.full((n_per_electrode, 1), self.electrode_voltage(e)))
-        return (
-            np.vstack(points).astype(float),
-            np.vstack(voltages).astype(float),
-        )
+        return np.vstack(points), np.vstack(voltages)
 
     def sample_outer_boundary(
         self, n: int, rng: np.random.Generator
     ) -> tuple[np.ndarray, np.ndarray]:
         """Points on the grounded outer circle (``V = 0``)."""
         theta = rng.uniform(0.0, 2.0 * np.pi, n)
-        points = np.column_stack(
-            [self.outer_radius * np.cos(theta), self.outer_radius * np.sin(theta)]
-        )
-        return points.astype(float), np.zeros((n, 1), dtype=float)
+        points = self.outer_radius * np.column_stack([np.cos(theta), np.sin(theta)])
+        return points, np.zeros((n, 1))
 
     def center_probe_grid(self, radius: float, grid: int) -> np.ndarray:
         """Regular grid of points within ``|r| <= radius`` for eta evaluation."""
         axis = np.linspace(-radius, radius, grid)
         gx, gy = np.meshgrid(axis, axis)
         pts = np.column_stack([gx.ravel(), gy.ravel()])
-        keep = np.hypot(pts[:, 0], pts[:, 1]) <= radius
-        return pts[keep]
+        return pts[np.hypot(pts[:, 0], pts[:, 1]) <= radius]
 
 
 def build_trap(config) -> FourRodTrap:
     """Construct a :class:`FourRodTrap` from a :class:`spinn.config.Config`."""
     exp = config.experiment
-    perturb_c = (0.0, 0.0, 0.0, 0.0)
-    perturb_r = (0.0, 0.0, 0.0, 0.0)
-    if exp.geometry == "perturbed_four_rod":
-        # mild asymmetry for the robustness/recovery stage (plan stage D)
-        perturb_c = (0.06, -0.04, 0.03, -0.05)
-        perturb_r = (0.05, -0.03, 0.04, -0.02)
+    perturbed = exp.geometry == "perturbed_four_rod"
     return FourRodTrap(
         r0=exp.r0,
         rod_radius=exp.rod_radius,
         outer_radius=exp.outer_radius,
         V0=exp.V0,
-        center_perturb=perturb_c,
-        radius_perturb=perturb_r,
+        center_perturb=_PERTURBED_CENTERS if perturbed else (0.0,) * 4,
+        radius_perturb=_PERTURBED_RADII if perturbed else (0.0,) * 4,
     )

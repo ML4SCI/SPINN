@@ -1,89 +1,40 @@
-"""Differential operators under the learned coordinate map ``x = NN_phi(z)``.
-
-For a composed field ``V(z) = NN_theta(NN_phi(z))`` the physical Laplacian must
-be taken with respect to the deformed coordinates ``x``, not the reference ``z``.
-Two equivalent routes are provided:
-
-* :func:`cartesian_laplacian` differentiates the potential directly with respect
-  to ``x`` (used when ``x`` is a leaf with ``requires_grad`` -- the fixed-geometry
-  case where ``NN_phi`` is the identity);
-* :func:`pullback_laplacian` evaluates the same physical Laplacian on the
-  reference domain using the map Jacobian, so a single backward pass reaches both
-  ``theta`` (physics) and ``phi`` (shape) -- the joint-optimization case.
-
-The pullback identity for ``x = F(z)``, ``u(z) = V(F(z))`` is
-
-    Delta_x V = (1/det J) div_z( det J * J^{-1} J^{-T} grad_z u ).
-
-The math mirrors the project's existing
-``PINN/Coordinate_Projection/operators.py``; it is reimplemented here so the
-``spinn`` package is self-contained.
-"""
+"""Autograd differential operators for Cartesian and mapped coordinates."""
 
 from __future__ import annotations
 
 import torch
 
 
+def _grad(outputs: torch.Tensor, inputs: torch.Tensor) -> torch.Tensor:
+    """Pointwise-batched gradient of ``outputs`` w.r.t. ``inputs``, graph retained."""
+    return torch.autograd.grad(
+        outputs,
+        inputs,
+        grad_outputs=torch.ones_like(outputs),
+        create_graph=True,
+        retain_graph=True,
+    )[0]
+
+
 def cartesian_laplacian(potential: torch.Tensor, points: torch.Tensor) -> torch.Tensor:
     """``Delta_x V`` where ``points`` (= x) is a leaf carrying ``requires_grad``."""
-    grad = torch.autograd.grad(
-        potential, points, grad_outputs=torch.ones_like(potential),
-        create_graph=True, retain_graph=True,
-    )[0]
+    grad = _grad(potential, points)
     laplacian = torch.zeros_like(potential)
     for axis in range(points.shape[1]):
-        second = torch.autograd.grad(
-            grad[:, axis], points, grad_outputs=torch.ones_like(grad[:, axis]),
-            create_graph=True, retain_graph=True,
-        )[0][:, axis : axis + 1]
-        laplacian = laplacian + second
+        laplacian = laplacian + _grad(grad[:, axis], points)[:, axis : axis + 1]
     return laplacian
 
 
 def batch_jacobian(outputs: torch.Tensor, inputs: torch.Tensor) -> torch.Tensor:
     """Per-sample Jacobian of a pointwise-batched map, shaped ``(N, out, in)``."""
-    columns = []
-    for axis in range(outputs.shape[1]):
-        derivative = torch.autograd.grad(
-            outputs[:, axis], inputs, grad_outputs=torch.ones_like(outputs[:, axis]),
-            create_graph=True, retain_graph=True,
-        )[0]
-        columns.append(derivative)
-    return torch.stack(columns, dim=1)
+    return torch.stack(
+        [_grad(outputs[:, axis], inputs) for axis in range(outputs.shape[1])], dim=1
+    )
 
 
 def map_jacobian(shape_network, z: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
     x = shape_network(z)
-    jac = batch_jacobian(x, z)
-    return x, jac
-
-
-def physical_gradient(
-    potential: torch.Tensor,
-    z: torch.Tensor,
-    shape_network,
-    *,
-    create_graph: bool = True,
-) -> torch.Tensor:
-    """``grad_x V = J^{-T} grad_z u``."""
-    grad_z = torch.autograd.grad(
-        potential, z, grad_outputs=torch.ones_like(potential),
-        create_graph=create_graph, retain_graph=True,
-    )[0]
-    _, jac = map_jacobian(shape_network, z)
-    inv_t = torch.linalg.inv(jac).transpose(1, 2)
-    return torch.bmm(inv_t, grad_z[:, :, None]).squeeze(-1)
-
-
-def physical_hessian(potential: torch.Tensor, z: torch.Tensor, shape_network) -> torch.Tensor:
-    """Hessian of ``V`` with respect to physical coordinates ``x``."""
-    grad_x = physical_gradient(potential, z, shape_network, create_graph=True)
-    d_grad_dz = batch_jacobian(grad_x, z)
-    _, jac = map_jacobian(shape_network, z)
-    inv = torch.linalg.inv(jac)
-    hessian = torch.bmm(d_grad_dz, inv)
-    return 0.5 * (hessian + hessian.transpose(1, 2))
+    return x, batch_jacobian(x, z)
 
 
 def pullback_laplacian(
@@ -92,23 +43,21 @@ def pullback_laplacian(
     shape_network,
     *,
     determinant_floor: float = 1e-8,
+    mapped_points: torch.Tensor | None = None,
 ) -> torch.Tensor:
-    """Physical Laplacian ``Delta_x V`` evaluated on the reference domain."""
-    grad_z = torch.autograd.grad(
-        potential, z, grad_outputs=torch.ones_like(potential),
-        create_graph=True, retain_graph=True,
-    )[0]
-    _, jac = map_jacobian(shape_network, z)
+    """Physical Laplacian ``Delta_x V`` evaluated on the reference domain.
+
+    ``Delta_x V = (1/det J) div_z(det J * J^-1 J^-T grad_z V)``.
+    """
+    grad_z = _grad(potential, z)
+    x = shape_network(z) if mapped_points is None else mapped_points
+    jac = batch_jacobian(x, z)
     det = torch.linalg.det(jac)
     inv = torch.linalg.inv(jac)
     metric = det[:, None, None] * torch.bmm(inv, inv.transpose(1, 2))
     flux = torch.bmm(metric, grad_z[:, :, None]).squeeze(-1)
     divergence = torch.zeros_like(det)
     for axis in range(z.shape[1]):
-        d = torch.autograd.grad(
-            flux[:, axis], z, grad_outputs=torch.ones_like(flux[:, axis]),
-            create_graph=True, retain_graph=True,
-        )[0][:, axis]
-        divergence = divergence + d
+        divergence = divergence + _grad(flux[:, axis], z)[:, axis]
     safe_det = torch.clamp(det, min=determinant_floor)
     return (divergence / safe_det)[:, None]

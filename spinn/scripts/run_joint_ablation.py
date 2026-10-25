@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Run the constrained joint-shape ablation grid.
 
 The grid varies geometry freedom while keeping the central quadrupole-shape
@@ -12,7 +11,6 @@ from pathlib import Path
 
 from spinn.config import apply_overrides, load_config
 from spinn.train.train_joint import train_joint
-
 
 ABLATIONS = {
     "A_safe": {
@@ -71,7 +69,9 @@ def main(argv: list[str] | None = None) -> None:
     root = Path(args.results_root)
     for run_name in args.runs:
         if run_name not in ABLATIONS:
-            raise ValueError(f"unknown ablation {run_name!r}; choose from {sorted(ABLATIONS)}")
+            raise ValueError(
+                f"unknown ablation {run_name!r}; choose from {sorted(ABLATIONS)}"
+            )
         run_root = root / run_name
         overrides = _override_list(PRACTICAL_OVERRIDES | ABLATIONS[run_name])
         for backend in args.backends:

@@ -9,7 +9,7 @@ from spinn.physics.laplace import cartesian_laplacian, pullback_laplacian
 
 def _harmonic(x):
     # V = x^2 - y^2 is harmonic: Delta V = 0
-    return (x[:, 0:1] ** 2 - x[:, 1:2] ** 2)
+    return x[:, 0:1] ** 2 - x[:, 1:2] ** 2
 
 
 def test_cartesian_laplacian_of_harmonic_is_zero():
@@ -30,6 +30,6 @@ def test_pullback_equals_cartesian_under_identity():
 def test_pullback_nonzero_for_nonharmonic():
     identity = IdentityShapeNetwork()
     z = torch.randn(64, 2, requires_grad=True)
-    v = (z[:, 0:1] ** 2 + z[:, 1:2] ** 2)  # Delta = 4
+    v = z[:, 0:1] ** 2 + z[:, 1:2] ** 2  # Delta = 4
     pull = pullback_laplacian(v, z, identity)
     assert torch.allclose(pull, 4.0 * torch.ones_like(pull), atol=1e-3)

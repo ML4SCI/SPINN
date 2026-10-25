@@ -92,6 +92,9 @@ import numpy as np
 import torch
 from torch import nn
 
+from spinn.geometry.four_rod import FourRodTrap
+from spinn.physics.eta import eta_fit
+
 try:  # Optuna is optional: the script degrades to random search without it.
     import optuna
 
@@ -100,21 +103,20 @@ except ImportError:
     HAVE_OPTUNA = False
 
 # ---------------------------------------------------------------------------
-# Geometry constants -- keep in lockstep with spinn/geometry/four_rod.py.
+# Geometry constants, derived from the authoritative spinn/geometry/four_rod.py.
 # ---------------------------------------------------------------------------
-R0 = 1.0  # characteristic trap radius (dimensionless units)
-V0 = 1.0  # peak-to-peak RF voltage scale; rails are driven at +/- V0/2
-ROD_RADIUS = 1.145 * R0  # circular-rod approximation to hyperbolic electrodes
-ROD_CENTER = R0 + ROD_RADIUS  # rod centers sit at distance r0 + R_rod
-OUTER_RADIUS = 5.0 * R0  # grounded outer disk
+TRAP = FourRodTrap()
+R0 = TRAP.r0  # characteristic trap radius (dimensionless units)
+V0 = TRAP.V0  # peak-to-peak RF voltage scale; rails are driven at +/- V0/2
+ROD_RADIUS = TRAP.rod_radius_abs  # circular-rod approximation to hyperbolic electrodes
+ROD_CENTER = TRAP.center_distance  # rod centers sit at distance r0 + R_rod
+OUTER_RADIUS = TRAP.outer_radius  # grounded outer disk
 
-# Boundary components: (cx, cy, radius, voltage).  Order fixed; the code below
-# treats all four rods identically so G/D inherit the exact D4 symmetry.
+# Boundary components: (cx, cy, radius, voltage) in East, West, North, South
+# order; the code below treats all four rods identically so G/D inherit the
+# exact D4 symmetry.
 BOUNDARIES = [
-    (+ROD_CENTER, 0.0, ROD_RADIUS, +0.5 * V0),  # East  (+V0/2)
-    (-ROD_CENTER, 0.0, ROD_RADIUS, +0.5 * V0),  # West  (+V0/2)
-    (0.0, +ROD_CENTER, ROD_RADIUS, -0.5 * V0),  # North (-V0/2)
-    (0.0, -ROD_CENTER, ROD_RADIUS, -0.5 * V0),  # South (-V0/2)
+    (e.cx, e.cy, e.radius, TRAP.electrode_voltage(e)) for e in TRAP.electrodes()
 ]
 
 
@@ -254,7 +256,7 @@ class ReynoldsD4(nn.Module):
 
     # (sign_x_from, take_y_first, sign_y_from, character) encoded explicitly:
     # each row builds input (a*u, b*v) where (u, v) is (x, y) or (y, x).
-    TRANSFORMS = [
+    TRANSFORMS = (
         # (swap?, sx, sy, chi)
         (False, +1.0, +1.0, +1.0),  # identity
         (False, -1.0, +1.0, +1.0),  # mirror across y-axis
@@ -264,9 +266,11 @@ class ReynoldsD4(nn.Module):
         (True, -1.0, +1.0, -1.0),  # 90-degree rotation
         (True, +1.0, -1.0, -1.0),  # 270-degree rotation
         (True, -1.0, -1.0, -1.0),  # anti-diagonal mirror
-    ]
+    )
 
-    def __init__(self, width: int, depth: int, activation: str, ff: FourierFeatures | None) -> None:
+    def __init__(
+        self, width: int, depth: int, activation: str, ff: FourierFeatures | None
+    ) -> None:
         super().__init__()
         self.ff = ff
         in_dim = ff.out_dim if ff is not None else 2
@@ -277,7 +281,9 @@ class ReynoldsD4(nn.Module):
         inputs, chis = [], []
         for swap, sx, sy, chi in self.TRANSFORMS:
             u, v = (py, px) if swap else (px, py)
-            inputs.append(torch.cat([sx * u / OUTER_RADIUS, sy * v / OUTER_RADIUS], dim=1))
+            inputs.append(
+                torch.cat([sx * u / OUTER_RADIUS, sy * v / OUTER_RADIUS], dim=1)
+            )
             chis.append(chi)
         stacked = torch.cat(inputs, dim=0)  # (8N, 2), one batched forward
         if self.ff is not None:
@@ -298,7 +304,9 @@ class PrefactorD4(nn.Module):
     to the physically allowed harmonics m = 2, 6, 10, ...
     """
 
-    def __init__(self, width: int, depth: int, activation: str, ff: FourierFeatures | None) -> None:
+    def __init__(
+        self, width: int, depth: int, activation: str, ff: FourierFeatures | None
+    ) -> None:
         super().__init__()
         self.ff = ff
         in_dim = ff.out_dim if ff is not None else 3
@@ -347,24 +355,8 @@ def laplacian(model: nn.Module, x: torch.Tensor) -> torch.Tensor:
 
 
 # ---------------------------------------------------------------------------
-# 4. Collocation sampling (mirrors four_rod.py rejection sampling).
+# 4. Collocation sampling (interior rejection sampling comes from FourRodTrap).
 # ---------------------------------------------------------------------------
-def in_vacuum(pts: np.ndarray, margin: float = 1e-3) -> np.ndarray:
-    r = np.hypot(pts[:, 0], pts[:, 1])
-    ok = r < OUTER_RADIUS - margin
-    for cx, cy, rad, _ in BOUNDARIES:
-        ok &= np.hypot(pts[:, 0] - cx, pts[:, 1] - cy) > rad + margin
-    return ok
-
-
-def sample_interior(n: int, rng: np.random.Generator) -> np.ndarray:
-    out = np.empty((0, 2))
-    while len(out) < n:
-        batch = rng.uniform(-OUTER_RADIUS, OUTER_RADIUS, size=(max(2 * n, 1024), 2))
-        out = np.vstack([out, batch[in_vacuum(batch)]])
-    return out[:n]
-
-
 def sample_center_disk(n: int, radius: float, rng: np.random.Generator) -> np.ndarray:
     """Uniform points in the rod-free disk around the origin (eta region)."""
     r = radius * np.sqrt(rng.uniform(size=n))
@@ -372,10 +364,13 @@ def sample_center_disk(n: int, radius: float, rng: np.random.Generator) -> np.nd
     return np.column_stack([r * np.cos(t), r * np.sin(t)])
 
 
-def sample_boundary(n_per: int, rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
+def sample_boundary(
+    n_per: int, rng: np.random.Generator
+) -> tuple[np.ndarray, np.ndarray]:
     """Points on every boundary circle with their prescribed voltages (for tests)."""
     pts, vals = [], []
-    for cx, cy, rad, volt in BOUNDARIES + [(0.0, 0.0, OUTER_RADIUS, 0.0)]:
+    boundaries = [*BOUNDARIES, (0.0, 0.0, OUTER_RADIUS, 0.0)]
+    for cx, cy, rad, volt in boundaries:
         t = rng.uniform(0.0, 2.0 * np.pi, n_per)
         pts.append(np.column_stack([cx + rad * np.cos(t), cy + rad * np.sin(t)]))
         vals.append(np.full((n_per, 1), volt))
@@ -383,18 +378,7 @@ def sample_boundary(n_per: int, rng: np.random.Generator) -> tuple[np.ndarray, n
 
 
 # ---------------------------------------------------------------------------
-# 5. eta estimator (same convention as spinn/physics/eta.py: eta = 2 a r0^2/V0
-#    from the quadratic fit V ~ a(x^2-y^2) + b xy + cx + dy + e near center).
-# ---------------------------------------------------------------------------
-def eta_fit(points: np.ndarray, potential: np.ndarray) -> float:
-    x, y = points[:, 0], points[:, 1]
-    design = np.column_stack([x**2 - y**2, x * y, x, y, np.ones_like(x)])
-    coef, *_ = np.linalg.lstsq(design, potential.reshape(-1), rcond=None)
-    return float(2.0 * coef[0] * R0**2 / V0)
-
-
-# ---------------------------------------------------------------------------
-# 6. One training run (used by every trial).
+# 5. One training run (used by every trial).
 # ---------------------------------------------------------------------------
 def train_one(cfg: dict, trial, args, val_x: torch.Tensor) -> tuple[float, nn.Module]:
     """Train one hard-constraint model; returns (best validation residual MSE, model).
@@ -417,7 +401,9 @@ def train_one(cfg: dict, trial, args, val_x: torch.Tensor) -> tuple[float, nn.Mo
     )
 
     # Collocation pool, refreshed periodically (matches sampling.resample_every).
-    pool = torch.as_tensor(sample_interior(args.pool, rng), dtype=dtype, device=device)
+    pool = torch.as_tensor(
+        TRAP.sample_interior(args.pool, rng), dtype=dtype, device=device
+    )
     n_center = int(cfg["center_frac"] * cfg["batch"])  # eta-region boost
     n_bulk = cfg["batch"] - n_center
 
@@ -425,7 +411,9 @@ def train_one(cfg: dict, trial, args, val_x: torch.Tensor) -> tuple[float, nn.Mo
     best_val = float("inf")
     for step in range(args.steps):
         if step > 0 and step % args.resample_every == 0:
-            pool = torch.as_tensor(sample_interior(args.pool, rng), dtype=dtype, device=device)
+            pool = torch.as_tensor(
+                TRAP.sample_interior(args.pool, rng), dtype=dtype, device=device
+            )
         idx = torch.randint(0, pool.shape[0], (n_bulk,), device=device)
         batch = pool[idx]
         if n_center > 0:
@@ -454,7 +442,7 @@ def train_one(cfg: dict, trial, args, val_x: torch.Tensor) -> tuple[float, nn.Mo
 
 
 # ---------------------------------------------------------------------------
-# 7. Hyperparameter search space (shared by Optuna TPE and the fallback).
+# 6. Hyperparameter search space (shared by Optuna TPE and the fallback).
 # ---------------------------------------------------------------------------
 def suggest_config(trial) -> dict:
     cfg = {
@@ -472,7 +460,9 @@ def suggest_config(trial) -> dict:
     }
     # Conditional parameters (only meaningful for some branches).
     cfg["ff_sigma"] = (
-        trial.suggest_float("ff_sigma", 0.5, 4.0, log=True) if cfg["n_fourier"] > 0 else 0.0
+        trial.suggest_float("ff_sigma", 0.5, 4.0, log=True)
+        if cfg["n_fourier"] > 0
+        else 0.0
     )
     cfg["weight_decay"] = (
         trial.suggest_float("weight_decay", 1e-6, 1e-3, log=True)
@@ -486,15 +476,22 @@ class RandomTrial:
     """Minimal stand-in so the script runs without Optuna (pure random search)."""
 
     def __init__(self, number: int, rng: np.random.Generator) -> None:
-        self.number, self.rng, self.params, self.user_attrs = number, rng, {}, {}
+        self.number = number
+        self.rng = rng
+        self.params: dict[str, object] = {}
+        self.user_attrs: dict[str, object] = {}
 
     def suggest_float(self, name, lo, hi, log=False):
-        v = float(np.exp(self.rng.uniform(np.log(lo), np.log(hi))) if log else self.rng.uniform(lo, hi))
+        v = float(
+            np.exp(self.rng.uniform(np.log(lo), np.log(hi)))
+            if log
+            else self.rng.uniform(lo, hi)
+        )
         self.params[name] = v
         return v
 
     def suggest_int(self, name, lo, hi, log=False):
-        v = int(round(self.suggest_float(name, lo, hi, log)))
+        v = round(self.suggest_float(name, lo, hi, log))
         self.params[name] = v
         return v
 
@@ -514,7 +511,7 @@ class RandomTrial:
 
 
 # ---------------------------------------------------------------------------
-# 8. Study driver.
+# 7. Study driver.
 # ---------------------------------------------------------------------------
 def run_study(args) -> None:
     out_dir = Path(args.out)
@@ -523,7 +520,9 @@ def run_study(args) -> None:
     rng = np.random.default_rng(args.seed + 999)
     # FIXED held-out validation collocation set: identical for every trial so
     # the objective is comparable across hyperparameter configurations.
-    val_x = torch.as_tensor(sample_interior(args.val_points, rng), dtype=dtype, device=args.device)
+    val_x = torch.as_tensor(
+        TRAP.sample_interior(args.val_points, rng), dtype=dtype, device=args.device
+    )
     center_grid = sample_center_disk(2000, 0.25, rng)  # eta probe (r <= 0.25 r0)
 
     best = {"value": float("inf")}
@@ -536,7 +535,7 @@ def run_study(args) -> None:
         with torch.no_grad():
             grid_t = torch.as_tensor(center_grid, dtype=dtype, device=args.device)
             v = model(grid_t).cpu().numpy()
-        eta = eta_fit(center_grid, v)
+        eta = eta_fit(center_grid, v, R0, V0)["eta_fit"]
         trial.set_user_attr("eta_fit", eta)
         trial.set_user_attr("wall_time_sec", time.time() - t0)
         if val < best["value"]:  # persist the best model as we go
@@ -568,7 +567,9 @@ def run_study(args) -> None:
                 }
             )
     else:
-        print("[warn] optuna not installed -> random search (pip install optuna for TPE+pruning)")
+        print(
+            "[warn] optuna not installed -> random search (pip install optuna for TPE+pruning)"
+        )
         search_rng = np.random.default_rng(args.seed)
         for i in range(args.trials):
             trial = RandomTrial(i, search_rng)
@@ -588,7 +589,9 @@ def run_study(args) -> None:
             )
 
     summary = {"best": best, "trials": records, "optuna": HAVE_OPTUNA}
-    (out_dir / "study_summary.json").write_text(json.dumps(summary, indent=2, default=str))
+    (out_dir / "study_summary.json").write_text(
+        json.dumps(summary, indent=2, default=str)
+    )
     print(f"\nbest val residual MSE: {best['value']:.4e}")
     print(f"best eta_fit:          {best.get('eta', float('nan')):.5f}")
     print(f"best params:           {best.get('params')}")
@@ -596,20 +599,29 @@ def run_study(args) -> None:
 
 
 # ---------------------------------------------------------------------------
-# 9. Self-tests: prove the constraints are architectural, not penalized.
+# 8. Self-tests: prove the constraints are architectural, not penalized.
 # ---------------------------------------------------------------------------
 def selftest() -> None:
     torch.manual_seed(0)
     rng = np.random.default_rng(0)
     bpts, bvals = sample_boundary(400, rng)
-    interior = sample_interior(1000, rng)
+    interior = TRAP.sample_interior(1000, rng)
 
     for mode in ("reynolds", "prefactor"):
-        cfg = dict(
-            sym_mode=mode, depth=3, width=64, activation="tanh",
-            n_fourier=16, ff_sigma=1.0, lr=1e-3, optimizer="adam",
-            scheduler="none", batch=256, center_frac=0.2, weight_decay=0.0,
-        )
+        cfg = {
+            "sym_mode": mode,
+            "depth": 3,
+            "width": 64,
+            "activation": "tanh",
+            "n_fourier": 16,
+            "ff_sigma": 1.0,
+            "lr": 1e-3,
+            "optimizer": "adam",
+            "scheduler": "none",
+            "batch": 256,
+            "center_frac": 0.2,
+            "weight_decay": 0.0,
+        }
         # float64: any residual boundary/symmetry error is pure rounding noise.
         model = build_model(cfg, torch.float64, "cpu")
 
@@ -626,20 +638,24 @@ def selftest() -> None:
             swap = model(torch.stack([xi[:, 1], xi[:, 0]], dim=1))
         err_m = (mirror - v).abs().max().item()
         err_s = (swap + v).abs().max().item()
-        assert err_m < 1e-9 and err_s < 1e-9, f"symmetry broken ({mode}): {err_m:.2e} {err_s:.2e}"
+        assert err_m < 1e-9 and err_s < 1e-9, (
+            f"symmetry broken ({mode}): {err_m:.2e} {err_s:.2e}"
+        )
 
         # (c) Laplacian is finite everywhere sampled (incl. near the origin,
         # which is why the outer boundary function is polynomial).
         near0 = torch.as_tensor(sample_center_disk(200, 0.3, rng), dtype=torch.float64)
         lap = laplacian(model, torch.cat([xi[:200], near0], dim=0))
         assert torch.isfinite(lap).all(), f"non-finite Laplacian ({mode})"
-        print(f"[selftest] {mode:9s}: BC err {abs(err_bc):.1e}, mirror {err_m:.1e}, "
-              f"swap {err_s:.1e}, laplacian finite -- PASS")
+        print(
+            f"[selftest] {mode:9s}: BC err {abs(err_bc):.1e}, mirror {err_m:.1e}, "
+            f"swap {err_s:.1e}, laplacian finite -- PASS"
+        )
 
     # (d) eta convention: perfect normalized quadrupole must give eta = 1.
     pts = sample_center_disk(500, 0.25, rng)
     v_quad = (V0 / (2.0 * R0**2)) * (pts[:, 0] ** 2 - pts[:, 1] ** 2)
-    eta = eta_fit(pts, v_quad)
+    eta = eta_fit(pts, v_quad, R0, V0)["eta_fit"]
     assert abs(eta - 1.0) < 1e-9, f"eta_fit convention broken: {eta}"
     print(f"[selftest] eta_fit(hyperbolic quadrupole) = {eta:.9f} -- PASS")
 
@@ -652,19 +668,29 @@ def main() -> None:
     p.add_argument("--trials", type=int, default=20, help="hyperparameter trials")
     p.add_argument("--steps", type=int, default=4000, help="training steps per trial")
     p.add_argument("--pool", type=int, default=20000, help="collocation pool size")
-    p.add_argument("--val-points", type=int, default=4096, help="held-out residual points")
-    p.add_argument("--resample-every", type=int, default=500, help="pool refresh cadence")
+    p.add_argument(
+        "--val-points", type=int, default=4096, help="held-out residual points"
+    )
+    p.add_argument(
+        "--resample-every", type=int, default=500, help="pool refresh cadence"
+    )
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--float64", action="store_true", help="double precision run")
-    p.add_argument("--storage", default=None, help="optuna storage URL (e.g. sqlite:///study.db)")
+    p.add_argument(
+        "--storage", default=None, help="optuna storage URL (e.g. sqlite:///study.db)"
+    )
     p.add_argument(
         "--out",
         default=str(Path(__file__).resolve().parents[1] / "results" / "hard_bc_tuning"),
         help="output directory for study summary + best model",
     )
-    p.add_argument("--selftest", action="store_true", help="run exactness checks and exit")
-    p.add_argument("--smoke", action="store_true", help="tiny end-to-end run (2 trials)")
+    p.add_argument(
+        "--selftest", action="store_true", help="run exactness checks and exit"
+    )
+    p.add_argument(
+        "--smoke", action="store_true", help="tiny end-to-end run (2 trials)"
+    )
     args = p.parse_args()
 
     if args.selftest:

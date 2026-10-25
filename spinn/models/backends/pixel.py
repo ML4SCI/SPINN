@@ -13,12 +13,15 @@ from __future__ import annotations
 import torch
 from torch import nn
 
+from ..layers import BoxNormalized
 from .decoders import DecoderMLP
 
 
-class PixelBackend(nn.Module):
-    kind = "pixel"
+def _cosine_kernel(weight: torch.Tensor) -> torch.Tensor:
+    return 0.5 * (1.0 - torch.cos(torch.pi * weight))
 
+
+class PixelBackend(BoxNormalized):
     def __init__(
         self,
         *,
@@ -29,33 +32,27 @@ class PixelBackend(nn.Module):
         decoder_layers: int = 2,
         decoder_width: int = 16,
     ) -> None:
-        super().__init__()
+        super().__init__(outer_radius)
         if grid_resolution < 2:
             raise ValueError("grid_resolution must be at least 2")
         self.grid_resolution = grid_resolution
         self.num_grids = num_grids
-        bound = float(outer_radius)
-        self.register_buffer("lower", torch.tensor([-bound, -bound], dtype=torch.float32))
-        self.register_buffer("upper", torch.tensor([bound, bound], dtype=torch.float32))
         self.feature_grids = nn.Parameter(
-            torch.empty(num_grids, feature_dim, grid_resolution, grid_resolution).uniform_(-1e-5, 1e-5)
+            torch.empty(
+                num_grids, feature_dim, grid_resolution, grid_resolution
+            ).uniform_(-1e-5, 1e-5)
         )
-        self.decoder = DecoderMLP(feature_dim, layers=decoder_layers, width=decoder_width)
+        self.decoder = DecoderMLP(
+            feature_dim, layers=decoder_layers, width=decoder_width
+        )
 
-    @staticmethod
-    def _cosine_kernel(weight: torch.Tensor) -> torch.Tensor:
-        return 0.5 * (1.0 - torch.cos(torch.pi * weight))
-
-    def _pixel_coords(self, points: torch.Tensor) -> torch.Tensor:
-        unit = (points - self.lower) / (self.upper - self.lower)
-        return 2.0 * unit - 1.0
-
-    def _interpolate_one(self, grid: torch.Tensor, coords: torch.Tensor, offset: float) -> torch.Tensor:
+    def _interpolate_one(
+        self, grid: torch.Tensor, coords: torch.Tensor, offset: float
+    ) -> torch.Tensor:
         """Official-style 2D cosine grid sampling for one cell grid."""
         res = self.grid_resolution
         scaled = ((coords + 1.0) / 2.0) * (res - 2) + offset
-        ix = scaled[:, 0]
-        iy = scaled[:, 1]
+        ix, iy = scaled[:, 0], scaled[:, 1]
 
         with torch.no_grad():
             ix_left = torch.floor(ix)
@@ -63,36 +60,29 @@ class PixelBackend(nn.Module):
             iy_top = torch.floor(iy)
             iy_bottom = iy_top + 1
 
-        dx_right = self._cosine_kernel(ix_right - ix)
+        dx_right = _cosine_kernel(ix_right - ix)[:, None]
         dx_left = 1.0 - dx_right
-        dy_bottom = self._cosine_kernel(iy_bottom - iy)
+        dy_bottom = _cosine_kernel(iy_bottom - iy)[:, None]
         dy_top = 1.0 - dy_bottom
 
-        x0 = torch.clamp(ix_left, 0, res - 1).to(torch.long)
-        x1 = torch.clamp(ix_right, 0, res - 1).to(torch.long)
-        y0 = torch.clamp(iy_top, 0, res - 1).to(torch.long)
-        y1 = torch.clamp(iy_bottom, 0, res - 1).to(torch.long)
+        def cell(index: torch.Tensor) -> torch.Tensor:
+            return torch.clamp(index, 0, res - 1).to(torch.long)
 
-        f00 = grid[:, y0, x0].T
-        f10 = grid[:, y0, x1].T
-        f01 = grid[:, y1, x0].T
-        f11 = grid[:, y1, x1].T
+        x0, x1, y0, y1 = cell(ix_left), cell(ix_right), cell(iy_top), cell(iy_bottom)
         return (
-            dx_right[:, None] * dy_bottom[:, None] * f00
-            + dx_left[:, None] * dy_bottom[:, None] * f10
-            + dx_right[:, None] * dy_top[:, None] * f01
-            + dx_left[:, None] * dy_top[:, None] * f11
+            dx_right * dy_bottom * grid[:, y0, x0].T
+            + dx_left * dy_bottom * grid[:, y0, x1].T
+            + dx_right * dy_top * grid[:, y1, x0].T
+            + dx_left * dy_top * grid[:, y1, x1].T
         )
 
     def features(self, points: torch.Tensor) -> torch.Tensor:
-        coords = self._pixel_coords(points)
-        summed = torch.zeros(
-            points.shape[0], self.feature_grids.shape[1], dtype=points.dtype, device=points.device
-        )
-        denom = max(self.num_grids, 1)
+        coords = self.unit_coords(points)
+        summed = points.new_zeros(points.shape[0], self.feature_grids.shape[1])
         for index, grid in enumerate(self.feature_grids):
-            offset = index / denom
-            summed = summed + self._interpolate_one(grid, coords, offset)
+            summed = summed + self._interpolate_one(
+                grid, coords, index / self.num_grids
+            )
         return summed
 
     def forward(self, points: torch.Tensor) -> torch.Tensor:

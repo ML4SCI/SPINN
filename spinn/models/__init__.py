@@ -1,15 +1,13 @@
-"""Models: shape network (NN_phi), physics backends (NN_theta), composed field."""
-
 from __future__ import annotations
 
+from .backends import build_backend
 from .composed import ComposedField, IdentityShapeNetwork
 from .shape_network import ResidualShapeNetwork, build_shape_network
-from .backends import build_backend
 
 __all__ = [
     "ComposedField",
     "IdentityShapeNetwork",
     "ResidualShapeNetwork",
-    "build_shape_network",
     "build_backend",
+    "build_shape_network",
 ]
