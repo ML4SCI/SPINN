@@ -79,6 +79,7 @@ def plot_geometry():
 # Coefficients come from a QR least-squares fit; f is trained with Adam on held-out boundary points.
 
 N_SRC = 24
+FIELD = "green"
 ENC_SRC_R = 6.5
 
 
@@ -117,7 +118,13 @@ def boundary_set(shape, offset=0.5):
     return g, pts, vals
 
 
+def basis(points, src):
+    return gauss(points, src)[:2] if FIELD == "gauss" else green(points, src)
+
+
 def fit_field(shape, f, vals=None):
+    if FIELD == "gauss":
+        return fit_gauss(shape, vals)
     _, pts, bc = boundary_set(shape)
     vals = bc if vals is None else vals
     src = sources(shape, f)
@@ -129,7 +136,7 @@ def fit_field(shape, f, vals=None):
 
 
 def potential(points, src, coef):
-    return green(points, src)[0] @ coef
+    return basis(points, src)[0] @ coef
 
 
 def train_depth(shape, steps=150):
@@ -235,7 +242,7 @@ MODES = ["R", "c4", "c8"]
 def shape_gradient(shape, f=F_DEPTH):
     g, pts, _ = boundary_set(shape)
     src, coef = fit_field(shape, f)
-    grad = green(pts[:4 * N_ROD], src)[1]
+    grad = basis(pts[:4 * N_ROD], src)[1]
     dVdn = (torch.einsum("nka,k->na", grad, coef) * torch.as_tensor(g["rod_normals"])).sum(1)
     radial = np.array([FRAMES[k][0] for k in g["rod_id"]])
     n_dot_radial = torch.as_tensor((g["rod_normals"] * radial).sum(1))
@@ -370,6 +377,87 @@ def plot_optimize_R_c4(starts=((1.145, 0.0), (1.3, 0.03), (1.0, -0.02))):
     print(f"saved {OUT}/06_optimize_R_c4.png")
 
 
+# ---- 7. matched comparison: Gaussian PIG atoms in place of Green atoms ----
+# 48 Gaussian centres in the first quadrant of the domain, cloned by 90 deg rotations with signs (+,-,+,-),
+# so both fields have 48 free coefficients. Gaussians are not harmonic, so the least-squares system stacks
+# Laplacian rows at interior collocation points under the boundary rows. Hadamard and Gauss-Newton unchanged.
+
+SIGMA = 0.6
+W_PDE = 0.1
+_rng = np.random.default_rng(0)
+_r = np.sqrt(_rng.uniform(0.3**2, 4.8**2, 2 * N_SRC))
+_a = _rng.uniform(0, np.pi / 2, 2 * N_SRC)
+_c0 = np.column_stack([_r * np.cos(_a), _r * np.sin(_a)])
+G_CENTERS = torch.as_tensor(np.vstack([_c0 @ np.array([[np.cos(t), np.sin(t)], [-np.sin(t), np.cos(t)]])
+                                       for t in np.pi / 2 * np.arange(4)]))
+G_TIE = torch.cat([s * torch.eye(2 * N_SRC, dtype=torch.float64) for s in [1, -1, 1, -1]])
+_xs = np.linspace(-4.9, 4.9, 45)
+_X, _Y = np.meshgrid(_xs, _xs)
+COLLOC_ALL = np.column_stack([_X.ravel(), _Y.ravel()])
+
+
+def gauss(points, centers):
+    d = points[:, None, :] - centers[None, :, :]
+    r2 = (d**2).sum(-1)
+    phi = torch.exp(-r2 / (2 * SIGMA**2))
+    return phi, -d / SIGMA**2 * phi[..., None], (r2 / SIGMA**4 - 2 / SIGMA**2) * phi
+
+
+def collocation(shape):
+    g = geometry(shape)
+    keep = np.hypot(*COLLOC_ALL.T) < ENCLOSURE
+    for k in range(4):
+        keep &= ~Path(g["rods"][g["rod_id"] == k]).contains_points(COLLOC_ALL)
+    return torch.as_tensor(COLLOC_ALL[keep])
+
+
+def fit_gauss(shape, vals=None):
+    _, pts, bc = boundary_set(shape)
+    vals = bc if vals is None else vals
+    col = collocation(shape)
+    A = torch.cat([gauss(pts, G_CENTERS)[0], W_PDE * gauss(col, G_CENTERS)[2]]) @ G_TIE
+    b = torch.cat([vals, torch.zeros(len(col), dtype=torch.float64)])
+    Q, Rm = torch.linalg.qr(A)
+    a = torch.linalg.solve_triangular(Rm, (Q.T @ b)[:, None], upper=True)[:, 0]
+    return G_CENTERS, G_TIE @ a
+
+
+def plot_matched_comparison(x0=(1.145, 0.0)):
+    global FIELD
+    runs = {}
+    for name in ["green", "gauss"]:
+        FIELD = name
+        h = optimize_R_c4(x0)
+        shape = (h[-1, 0], h[-1, 1], 0.0)
+        with torch.no_grad():
+            src, coef = fit_field(shape, F_DEPTH)
+            err = rod_residual(shape, src, coef)
+            lap = gauss(collocation(shape), src)[2] @ coef if name == "gauss" else torch.zeros(1)
+        runs[name] = (h, shape)
+        print(f"{name}: R={shape[0]:.4f} c4={shape[1]:+.4f} own q6={h[-1, 2]:+.1e} q10={h[-1, 3]:+.1e}  rod BC max err {err:.1e}  max |lap V| {lap.abs().max().item():.1e}")
+    FIELD = "green"
+    with torch.no_grad():
+        for name, (h, shape) in runs.items():
+            q = multipoles(*fit_field(shape, F_DEPTH)).numpy()
+            print(f"  {name} final shape read by the Green field: q6={q[1]:+.1e} q10={q[2]:+.1e}")
+
+    fig, ax = plt.subplots(1, 3, figsize=(17, 5), constrained_layout=True)
+    for name, ls in [("green", "-"), ("gauss", "--")]:
+        h, shape = runs[name]
+        g = geometry(shape)
+        m = g["rod_id"] == 0
+        ax[0].plot(*np.vstack([g["rods"][m], g["rods"][m][:1]]).T, ls, label=f"{name}: R={shape[0]:.3f}, c4={shape[1]:+.4f}")
+        ax[1].semilogy(np.abs(h[:, 2]), ls, label=f"{name} |q6|")
+        ax[1].semilogy(np.abs(h[:, 3]), ls, marker=".", label=f"{name} |q10|")
+        ax[2].plot(h[:, 0], h[:, 1], ls, marker="o", label=name)
+    ax[0].add_patch(plt.Circle((0, 0), 1.0, fill=False, ls=":", color="gray"))
+    ax[0].set_aspect("equal"); ax[0].set_title("final right-hand electrode"); ax[0].legend()
+    ax[1].set_xlabel("outer step"); ax[1].set_title("q6 / q10 as seen by each field model"); ax[1].legend(fontsize=8)
+    ax[2].set_xlabel("R"); ax[2].set_ylabel("c4"); ax[2].set_title("shape trajectories"); ax[2].legend()
+    fig.savefig(f"{OUT}/07_green_vs_gauss.png", dpi=130)
+    print(f"saved {OUT}/07_green_vs_gauss.png")
+
+
 if __name__ == "__main__":
     plot_geometry()
     plot_field()
@@ -377,3 +465,4 @@ if __name__ == "__main__":
     plot_shape_gradient()
     plot_optimize_R()
     plot_optimize_R_c4()
+    plot_matched_comparison()
