@@ -117,8 +117,9 @@ def boundary_set(shape, offset=0.5):
     return g, pts, vals
 
 
-def fit_field(shape, f):
-    _, pts, vals = boundary_set(shape)
+def fit_field(shape, f, vals=None):
+    _, pts, bc = boundary_set(shape)
+    vals = bc if vals is None else vals
     src = sources(shape, f)
     T = tie()
     A = green(pts, src)[0] @ T
@@ -187,9 +188,13 @@ _th = torch.arange(N_READ, dtype=torch.float64) * 2 * np.pi / N_READ
 READ_PTS = R_READ * torch.stack([torch.cos(_th), torch.sin(_th)], 1)
 
 
-def multipoles(src, coef, orders=ORDERS):
+def raw_multipoles(src, coef, orders=ORDERS):
     v = potential(READ_PTS, src, coef)
-    A = torch.stack([2 * (v * torch.cos(n * _th)).mean() / R_READ**n for n in orders])
+    return torch.stack([2 * (v * torch.cos(n * _th)).mean() / R_READ**n for n in orders])
+
+
+def multipoles(src, coef, orders=ORDERS):
+    A = raw_multipoles(src, coef, orders)
     return A / A[0]
 
 
@@ -218,7 +223,65 @@ def plot_multipoles(radii=(1.0, 1.145, 1.3)):
     print(f"saved {OUT}/03_multipoles.png")
 
 
+# ---- 4. Hadamard shape gradient ----
+# Normal electrode velocity for shape mode s: h = n . radial * d(gap)/ds + dp/ds, with d(gap)/ds = 1 and
+# dp/ds = 1, cos 4phi, cos 8phi. Sensitivity V' is harmonic with V' = -h dV/dn on rods, 0 on the
+# enclosure, solved in the same Green basis. dq_n follows from the quotient rule on A_n / A_2.
+
+F_DEPTH = 0.73
+MODES = ["R", "c4", "c8"]
+
+
+def shape_gradient(shape, f=F_DEPTH):
+    g, pts, _ = boundary_set(shape)
+    src, coef = fit_field(shape, f)
+    grad = green(pts[:4 * N_ROD], src)[1]
+    dVdn = (torch.einsum("nka,k->na", grad, coef) * torch.as_tensor(g["rod_normals"])).sum(1)
+    radial = np.array([FRAMES[k][0] for k in g["rod_id"]])
+    n_dot_radial = torch.as_tensor((g["rod_normals"] * radial).sum(1))
+    phi = torch.as_tensor(np.tile(g["phi"], 4))
+    A = raw_multipoles(src, coef)
+    dq = []
+    for dp in [torch.ones_like(phi), torch.cos(4 * phi), torch.cos(8 * phi)]:
+        h = n_dot_radial + dp
+        vals = torch.cat([-h * dVdn, torch.zeros(N_ENC, dtype=torch.float64)])
+        dA = raw_multipoles(*fit_field(shape, f, vals))
+        dq.append((dA * A[0] - A * dA[0]) / A[0] ** 2)
+    return torch.stack(dq, 1).numpy()  # rows: orders, cols: modes
+
+
+def fd_gradient(shape, f=F_DEPTH, eps=1e-3):
+    cols = []
+    for j in range(3):
+        up, dn = list(shape), list(shape)
+        up[j] += eps; dn[j] -= eps
+        cols.append((multipoles(*fit_field(tuple(up), f)) - multipoles(*fit_field(tuple(dn), f))).numpy() / (2 * eps))
+    return np.stack(cols, 1)
+
+
+def plot_shape_gradient():
+    Rs = np.linspace(1.0, 1.3, 7)
+    with torch.no_grad():
+        had = np.array([shape_gradient((R, 0.02, 0.0)) for R in Rs])
+        fd = np.array([fd_gradient((R, 0.02, 0.0)) for R in Rs])
+        src, coef = fit_field((1.145, 0.02, 0.0), F_DEPTH)
+        print(f"rod BC max err at (1.145, 0.02, 0): {rod_residual((1.145, 0.02, 0.0), src, coef):.1e}")
+    rel = np.abs(had[:, 1:3] - fd[:, 1:3]).max() / np.abs(fd[:, 1:3]).max()
+    print(f"max |Hadamard - FD| / max |FD| over q6, q10: {rel:.1e}")
+    fig, ax = plt.subplots(2, 3, figsize=(14, 7), constrained_layout=True)
+    for i, order_idx in enumerate([1, 2]):
+        for j, mode in enumerate(MODES):
+            ax[i, j].plot(Rs, had[:, order_idx, j], "-", label="Hadamard")
+            ax[i, j].plot(Rs, fd[:, order_idx, j], "o", mfc="none", label="central FD re-solve")
+            ax[i, j].set_title(f"d q{ORDERS[order_idx]} / d {mode}   (c4=0.02)")
+            ax[i, j].set_xlabel("R"); ax[i, j].axhline(0, color="gray", lw=0.5)
+    ax[0, 0].legend()
+    fig.savefig(f"{OUT}/04_hadamard_vs_fd.png", dpi=130)
+    print(f"saved {OUT}/04_hadamard_vs_fd.png")
+
+
 if __name__ == "__main__":
     plot_geometry()
     plot_field()
     plot_multipoles()
+    plot_shape_gradient()
