@@ -1,16 +1,20 @@
 # SPINN
 
+The consolidated scientific results, claim status, negative experiments, and artifact index are maintained in [the master RESULTS document](exp/harmonic_source_shape_search/RESULTS.md). The open-ended audit of the ten-branch Claude artifact, including the new conformal center-jet electrode family, is in [its dedicated experiment record](exp/claude_tree_stress_test/RESULTS.md).
+
 Differentiable Paul-trap design: physics-informed field solvers and
 coordinate-projection shape optimization for a 2D four-rod linear Paul trap,
-validated against an independent finite-difference solver. See
-`../Resources/Project_Audit_and_Roadmap.md` for the research thesis and
-`../Resources/SPINN_Project_Reference.md` for background.
+validated against an independent finite-difference solver.
 
 ## Layout
 
-```
+```text
 SPINN/
   spinn/        the active package -- start here (spinn/README.md)
+  scratch/      short numbered exploration scripts
+  exp/          multi-script experiment campaigns
+  prototypes/   standalone single-file PINN / PIG / PIXEL / CPN / SPINN scripts
+                (Dale's fixed-geometry line); independent of spinn/
   DEVSIM/       reference Gmsh/DEVSIM finite-element pipelines (circular,
                 rectangular, inline, hyperbolic trap cross-sections); used as
                 an independent cross-check, not a PINN implementation
@@ -19,6 +23,10 @@ SPINN/
   archive/      superseded PINN/experiment/benchmark/sweep code, kept for
                 provenance -- see archive/README.md before reviving anything
 ```
+
+Only code, configs and trained model weights (`*.pt`) are version-controlled.
+Plots, results, reports, the paper, slides and agent notes are generated or
+kept locally and ignored by git (see `.gitignore`).
 
 ## Where things are
 
@@ -34,6 +42,14 @@ SPINN/
 
 ## Tests
 
+Install the active package and its test dependency once:
+
 ```bash
-python -m pytest    # runs spinn/tests via pytest.ini
+python3 -m pip install -e '.[dev]'
+```
+
+Then run:
+
+```bash
+python3 -m pytest
 ```
