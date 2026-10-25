@@ -280,8 +280,39 @@ def plot_shape_gradient():
     print(f"saved {OUT}/04_hadamard_vs_fd.png")
 
 
+# ---- 5. outer loop on R alone: minimize q6^2 with the Hadamard gradient ----
+
+def optimize_R(R0, lr=60.0, steps=30):
+    R, hist = R0, []
+    with torch.no_grad():
+        for _ in range(steps):
+            shape = (R, 0.0, 0.0)
+            q6 = multipoles(*fit_field(shape, F_DEPTH))[1].item()
+            dq6 = shape_gradient(shape)[1, 0]
+            hist.append((R, q6))
+            R -= lr * 2 * q6 * dq6
+    return np.array(hist)
+
+
+def plot_optimize_R(starts=(0.9, 1.3, 1.45)):
+    fig, ax = plt.subplots(1, 2, figsize=(12, 4.5), constrained_layout=True)
+    for R0 in starts:
+        h = optimize_R(R0)
+        with torch.no_grad():
+            src, coef = fit_field((h[-1, 0], 0.0, 0.0), F_DEPTH)
+            print(f"start R={R0}: final R={h[-1, 0]:.5f}, q6={h[-1, 1]:+.1e}, rod BC max err {rod_residual((h[-1, 0], 0.0, 0.0), src, coef):.1e}")
+        ax[0].plot(h[:, 0], ".-", label=f"start {R0}")
+        ax[1].semilogy(np.abs(h[:, 1]) + 1e-16, ".-", label=f"start {R0}")
+    ax[0].axhline(1.145168, color="k", ls="--", label="known optimum 1.145168")
+    ax[0].set_xlabel("outer step"); ax[0].set_ylabel("R / r0"); ax[0].legend(); ax[0].set_title("gradient descent on R, J = q6^2")
+    ax[1].set_xlabel("outer step"); ax[1].set_ylabel("|q6|"); ax[1].set_title("q6 during descent")
+    fig.savefig(f"{OUT}/05_optimize_R.png", dpi=130)
+    print(f"saved {OUT}/05_optimize_R.png")
+
+
 if __name__ == "__main__":
     plot_geometry()
     plot_field()
     plot_multipoles()
     plot_shape_gradient()
+    plot_optimize_R()
