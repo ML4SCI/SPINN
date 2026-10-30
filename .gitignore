@@ -1,17 +1,12 @@
 # ---------------------------------------------------------------
 # What gets pushed: code (*.py, *.ipynb, *.sh), configs (*.yaml,
 # *.toml, *.txt), README.md files, and trained model weights (*.pt).
-# Everything else -- agent notes/plans, results, plots, papers,
-# slides, PDFs -- stays local.
+# Everything else -- notes, results, plots, papers, slides, PDFs --
+# stays local.
 # ---------------------------------------------------------------
 
 # Local-only workspace: paper, slides, blog, notes
 local/
-
-# Agent config, plans, instructions
-.claude/
-CLAUDE.md
-PLAN.md
 
 # Markdown except READMEs (RESULTS.md, logs, reports, handoffs)
 *.md
