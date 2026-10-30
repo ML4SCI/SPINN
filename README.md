@@ -1,7 +1,5 @@
 # SPINN
 
-The consolidated scientific results, claim status, negative experiments, and artifact index are maintained in [the master RESULTS document](exp/harmonic_source_shape_search/RESULTS.md). The open-ended audit of the ten-branch Claude artifact, including the new conformal center-jet electrode family, is in [its dedicated experiment record](exp/claude_tree_stress_test/RESULTS.md).
-
 Differentiable Paul-trap design: physics-informed field solvers and
 coordinate-projection shape optimization for a 2D four-rod linear Paul trap,
 validated against an independent finite-difference solver.
@@ -11,8 +9,8 @@ validated against an independent finite-difference solver.
 ```text
 SPINN/
   spinn/        the active package -- start here (spinn/README.md)
-  scratch/      short numbered exploration scripts
-  exp/          multi-script experiment campaigns
+  scratch/      short single-question experiments, indexed by theme in scratch/README.md
+  exp/          multi-script experiment campaigns and the end-to-end trainer (exp/README.md)
   prototypes/   standalone single-file PINN / PIG / PIXEL / CPN / SPINN scripts
                 (Dale's fixed-geometry line); independent of spinn/
   DEVSIM/       reference Gmsh/DEVSIM finite-element pipelines (circular,
