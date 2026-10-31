@@ -81,5 +81,20 @@ initialization the converted terms differ by about eight orders of magnitude
 in value and gradient norm. With equal weights the field error was 10.3x worse
 than the ordinary dimensionless run. Fixed per-term weights set from each
 term's initial gradient norm almost recovered the baseline, so the balancing
-comes from gradient-norm weighting, not from the unit change. That is the
-natural next experiment for this idea.
+comes from gradient-norm weighting, not from the unit change.
+
+`gradnorm_experiment.py` tests that directly. It uses the same problem, seed
+and 400 Adam steps, with weights of 1/|grad L_i| refreshed every 20 steps by an
+EMA. Each converted term is a constant multiple of its dimensionless term, so
+these weights cancel the conversion. The Coulomb and dimensionless adaptive
+runs end at the same Laplace MSE (1.11e-4), V MSE (2.4e-5) and E MAE (5.85e-3).
+Their histories match except for transient float round-off. Against the plain
+dimensionless run with alpha = 1, adaptive weighting:
+
+- lowers the Laplace MSE 8.7x;
+- lowers the V MSE 2.1x;
+- lowers the E MAE 1.4x;
+- slightly raises the worst boundary error, from 1.2e-2 to 1.4e-2.
+
+So unit matching is harmless but does nothing under gradient-norm weighting.
+The weighting is what helps.
